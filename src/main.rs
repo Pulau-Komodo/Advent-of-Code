@@ -18,6 +18,8 @@ fn main() {
 		("2020", "4", "b") => year_2020::day_4::part_b(input),
 		("2020", "5", "a") => year_2020::day_5::part_a(input),
 		("2020", "5", "b") => year_2020::day_5::part_b(input),
+		("2020", "6", "a") => year_2020::day_6::part_a(input),
+		("2020", "6", "b") => year_2020::day_6::part_b(input),
 		_ => unimplemented!(),
 	};
 	println!("{}", result);
