@@ -67,11 +67,11 @@ pub fn part_a(input: String) -> String {
 
 pub fn part_b(input: String) -> String {
 	let instructions = parse_instructions(input);
-	let result = (0..).find_map(|n| {
-		match execute_instructions(&instructions, Some(n)) {
+	let result = (0..)
+		.find_map(|n| match execute_instructions(&instructions, Some(n)) {
 			(_, false) => None,
-			(result, true) => Some(result)
-		}
-	}).unwrap();
+			(result, true) => Some(result),
+		})
+		.unwrap();
 	format!("{}", result)
 }
