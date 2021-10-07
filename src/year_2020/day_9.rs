@@ -20,6 +20,7 @@ fn find_window(number: u64, all_numbers: &[u64]) -> &[u64] {
 	let mut end = 2;
 	let mut sum: u64 = all_numbers[start..end].iter().sum();
 	loop {
+		#[allow(clippy::comparison_chain)]
 		if sum == number {
 			return &all_numbers[start..end];
 		} else if sum < number {
