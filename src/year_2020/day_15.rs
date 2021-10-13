@@ -62,17 +62,17 @@ mod tests {
 	fn sample_input_2() {
 		let (map, last) = process_input("0,3,6");
 		assert_eq!(get_nth_number(map, last, 30_000_000), 175594);
-//		let (map, last) = process_input("1,3,2");
-//		assert_eq!(get_nth_number(map, last, 30_000_000), 2578);
-//		let (map, last) = process_input("2,1,3");
-//		assert_eq!(get_nth_number(map, last, 30_000_000), 3544142);
-//		let (map, last) = process_input("1,2,3");
-//		assert_eq!(get_nth_number(map, last, 30_000_000), 261214);
-//		let (map, last) = process_input("2,3,1");
-//		assert_eq!(get_nth_number(map, last, 30_000_000), 6895259);
-//		let (map, last) = process_input("3,2,1");
-//		assert_eq!(get_nth_number(map, last, 30_000_000), 18);
-//		let (map, last) = process_input("3,1,2");
-//		assert_eq!(get_nth_number(map, last, 30_000_000), 362);
+		/*let (map, last) = process_input("1,3,2");
+		assert_eq!(get_nth_number(map, last, 30_000_000), 2578);
+		let (map, last) = process_input("2,1,3");
+		assert_eq!(get_nth_number(map, last, 30_000_000), 3544142);
+		let (map, last) = process_input("1,2,3");
+		assert_eq!(get_nth_number(map, last, 30_000_000), 261214);
+		let (map, last) = process_input("2,3,1");
+		assert_eq!(get_nth_number(map, last, 30_000_000), 6895259);
+		let (map, last) = process_input("3,2,1");
+		assert_eq!(get_nth_number(map, last, 30_000_000), 18);
+		let (map, last) = process_input("3,1,2");
+		assert_eq!(get_nth_number(map, last, 30_000_000), 362);*/
 	}
 }
