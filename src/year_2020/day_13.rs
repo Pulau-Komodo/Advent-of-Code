@@ -75,8 +75,7 @@ mod tests {
 	}
 	#[test]
 	fn full_input() {
-		let input =
-			std::fs::read_to_string("./input/2020/13.txt").expect("Could not read file");
+		let input = std::fs::read_to_string("./input/2020/13.txt").expect("Could not read file");
 		assert_eq!(
 			get_answers(input),
 			String::from("1: 2298, 2: 783685719679632")
