@@ -30,6 +30,7 @@ fn main() {
 		("2020", "12", _) => year_2020::day_12::get_answers(input),
 		("2020", "13", _) => year_2020::day_13::get_answers(input),
 		("2020", "14", _) => year_2020::day_14::get_answers(input),
+		("2020", "15", _) => year_2020::day_15::get_answers(input),
 		_ => unimplemented!(),
 	};
 	println!("{}", result);
