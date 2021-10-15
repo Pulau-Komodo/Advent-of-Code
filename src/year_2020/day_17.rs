@@ -34,7 +34,7 @@ fn read_input_and_initialize(input: &str, cycles: usize, four_dimensional: bool)
 						.map(|y| {
 							(0..x_target_length)
 								.map(|x| {
-									if w == cycles
+									if (!four_dimensional || w == cycles)
 										&& z == cycles && (cycles..cycles + y_length).contains(&y)
 										&& (cycles..cycles + x_length).contains(&x)
 									{
