@@ -7,6 +7,7 @@ fn main() {
 	let part = args.next().unwrap_or_else(|| String::from("a"));
 	let input = std::fs::read_to_string(format!("./input/{}/{}.txt", year, day))
 		.expect("Could not read file");
+	let now = std::time::Instant::now();
 	let result = match (year.as_str(), day.as_str(), part.as_str()) {
 		("2020", "1", "a") => year_2020::day_1::part_a(input),
 		("2020", "1", "b") => year_2020::day_1::part_b(input),
@@ -42,5 +43,5 @@ fn main() {
 		("2020", "20", "b") => year_2020::day_20::get_answer_2(input),
 		_ => unimplemented!(),
 	};
-	println!("{}", result);
+	println!("{} ({} μs)", result, now.elapsed().as_micros());
 }
