@@ -38,6 +38,8 @@ fn main() {
 		("2020", "18", "b") => year_2020::day_18::get_answer_2(input),
 		("2020", "19", "a") => year_2020::day_19::get_answer_1(input),
 		("2020", "19", "b") => year_2020::day_19::get_answer_2(input),
+		("2020", "20", "a") => year_2020::day_20::get_answer_1(input),
+		("2020", "20", "b") => year_2020::day_20::get_answer_2(input),
 		_ => unimplemented!(),
 	};
 	println!("{}", result);
