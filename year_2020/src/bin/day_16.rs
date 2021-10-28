@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(16, &[get_answers]);
+}
+
 type Range = std::ops::RangeInclusive<u32>;
 
 #[derive(Clone)]
@@ -59,8 +63,8 @@ fn validate_ticket(ticket: &[u32], rules: &[Rule]) -> bool {
 		.all(|number| rules.iter().any(|rule| rule.includes(number)))
 }
 
-pub fn get_answers(input: String) -> String {
-	let (rules, own_ticket, tickets) = process_input(&input);
+fn get_answers(input: &str) -> String {
+	let (rules, own_ticket, tickets) = process_input(input);
 	let error_rate: u32 = tickets
 		.iter()
 		.map(|ticket| sum_of_invalid_values(ticket, &rules))
@@ -127,7 +131,7 @@ mod tests {
 	use super::*;
 	#[test]
 	fn sample_input() {
-		let input = String::from("class: 1-3 or 5-7\r\nrow: 6-11 or 33-44\r\nseat: 13-40 or 45-50\r\n\r\nyour ticket:\r\n7,1,14\r\n\r\nnearby tickets:\r\n7,3,47\r\n40,4,50\r\n55,2,20\r\n38,6,12");
+		let input = "class: 1-3 or 5-7\r\nrow: 6-11 or 33-44\r\nseat: 13-40 or 45-50\r\n\r\nyour ticket:\r\n7,1,14\r\n\r\nnearby tickets:\r\n7,3,47\r\n40,4,50\r\n55,2,20\r\n38,6,12";
 		assert_eq!(get_answers(input), "1: 71, 2: 1");
 	}
 }

@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(18, &[get_answer_1, get_answer_2]);
+}
+
 #[derive(Debug, Clone)]
 enum Token {
 	Number(u64),
@@ -131,7 +135,7 @@ fn evaluate_expression_2(expression: Vec<Token>) -> Vec<Token> {
 	}
 }
 
-pub fn get_answer_1(input: String) -> String {
+fn get_answer_1(input: &str) -> String {
 	let result: u64 = input
 		.lines()
 		.map(tokenize_expression)
@@ -140,7 +144,7 @@ pub fn get_answer_1(input: String) -> String {
 	format!("{}", result)
 }
 
-pub fn get_answer_2(input: String) -> String {
+fn get_answer_2(input: &str) -> String {
 	let result: u64 = input
 		.lines()
 		.map(tokenize_expression_2)
@@ -176,19 +180,19 @@ mod tests {
 	}
 	#[test]
 	fn sample_input_2() {
-		let expression = String::from("1 + (2 * 3) + (4 * (5 + 6))");
+		let expression = "1 + (2 * 3) + (4 * (5 + 6))";
 		println!("{}", expression);
 		assert_eq!(get_answer_2(expression), "51");
-		let expression = String::from("2 * 3 + (4 * 5)");
+		let expression = "2 * 3 + (4 * 5)";
 		println!("{}", expression);
 		assert_eq!(get_answer_2(expression), "46");
-		let expression = String::from("5 + (8 * 3 + 9 + 3 * 4 * 3)");
+		let expression = "5 + (8 * 3 + 9 + 3 * 4 * 3)";
 		println!("{}", expression);
 		assert_eq!(get_answer_2(expression), "1445");
-		let expression = String::from("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))");
+		let expression = "5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))";
 		println!("{}", expression);
 		assert_eq!(get_answer_2(expression), "669060");
-		let expression = String::from("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2");
+		let expression = "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2";
 		println!("{}", expression);
 		assert_eq!(get_answer_2(expression), "23340");
 	}

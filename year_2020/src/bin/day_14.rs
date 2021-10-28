@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(14, &[get_answers]);
+}
+
 enum Instruction {
 	Mask(Mask),
 	Assignment(Assignment),
@@ -137,9 +141,9 @@ fn part_2(input: &str) -> u64 {
 	values.iter().map(|(_location, value)| value).sum::<u64>()
 }
 
-pub fn get_answers(input: String) -> String {
-	let sum_1 = part_1(&input);
-	let sum_2 = part_2(&input);
+fn get_answers(input: &str) -> String {
+	let sum_1 = part_1(input);
+	let sum_2 = part_2(input);
 	format!("1: {}, 2: {}", sum_1, sum_2)
 }
 

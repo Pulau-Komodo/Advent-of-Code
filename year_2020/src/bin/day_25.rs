@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(25, &[get_answer]);
+}
+
 struct SubjectNumber {
 	number: u32,
 	value: u32,
@@ -39,8 +43,8 @@ fn get_keys(input: &str) -> (u32, u32) {
 	(numbers.next().unwrap(), numbers.next().unwrap())
 }
 
-pub fn get_answer(input: String) -> String {
-	let keys = get_keys(&input);
+fn get_answer(input: &str) -> String {
+	let keys = get_keys(input);
 	let door_loops = find_loops(keys.0);
 	let mut subject = SubjectNumber::with_number(keys.1);
 	for _ in 0..door_loops {

@@ -1,4 +1,8 @@
-fn parse_input(input: String) -> Vec<u64> {
+fn main() {
+	year_2020::print_answers(9, &[get_answers]);
+}
+
+fn parse_input(input: &str) -> Vec<u64> {
 	input
 		.lines()
 		.map(str::parse)
@@ -37,7 +41,7 @@ fn find_window(number: u64, all_numbers: &[u64]) -> &[u64] {
 	}
 }
 
-pub fn get_answers(input: String) -> String {
+fn get_answers(input: &str) -> String {
 	let numbers = parse_input(input);
 	let (_invalid_index, invalid_number) = numbers
 		.iter()

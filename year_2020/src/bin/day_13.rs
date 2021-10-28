@@ -1,4 +1,8 @@
-fn parse_input(input: String) -> (i32, Vec<(usize, i32)>) {
+fn main() {
+	year_2020::print_answers(13, &[get_answers]);
+}
+
+fn parse_input(input: &str) -> (i32, Vec<(usize, i32)>) {
 	let mut input = input.lines();
 	let time = input.next().unwrap().parse().unwrap();
 	let buses = input
@@ -47,7 +51,7 @@ fn how_many_cycles_to_target(start: u64, target: u64, step: u64, modulo: u64) ->
 	}
 }
 
-pub fn get_answers(input: String) -> String {
+fn get_answers(input: &str) -> String {
 	let (time, buses) = parse_input(input);
 	let (next_bus, wait_time) = buses
 		.iter()
@@ -61,23 +65,23 @@ pub fn get_answers(input: String) -> String {
 
 #[cfg(test)]
 mod tests {
+
 	use super::*;
 	#[test]
 	fn sample_input() {
-		let input = String::from("939\n7,13,x,x,59,x,31,19");
+		let input = "939\n7,13,x,x,59,x,31,19";
 		assert_eq!(get_answers(input), String::from("1: 295, 2: 1068781"));
 	}
 	#[test]
 	fn non_zero_first() {
-		let input =
-			String::from("0\nx,x,x,x,x,x,x,x,x,x,31,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,7");
+		let input = "0\nx,x,x,x,x,x,x,x,x,x,31,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,7";
 		assert_eq!(get_answers(input), String::from("1: 49, 2: 145"));
 	}
 	#[test]
 	fn full_input() {
-		let input = std::fs::read_to_string("./input/2020/13.txt").expect("Could not read file");
+		let input = year_2020::read_file(13);
 		assert_eq!(
-			get_answers(input),
+			get_answers(&input),
 			String::from("1: 2298, 2: 783685719679632")
 		);
 	}

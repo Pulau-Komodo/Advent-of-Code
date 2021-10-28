@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(2, &[part_a, part_b]);
+}
+
 fn split_password_line(password_line: &str) -> (usize, usize, char, &str) {
 	let mut elements = password_line.split(' ');
 	let numbers = elements.next().unwrap().split_once('-').unwrap();
@@ -15,7 +19,7 @@ fn split_password_line(password_line: &str) -> (usize, usize, char, &str) {
 	(first_number, second_number, letter, password)
 }
 
-pub fn part_a(input: String) -> String {
+fn part_a(input: &str) -> String {
 	let count = input.lines().filter(validate_password_a).count();
 	format!("{}", count)
 }
@@ -26,7 +30,7 @@ fn validate_password_a(password_line: &&str) -> bool {
 	letter_count >= min_length && letter_count <= max_length
 }
 
-pub fn part_b(input: String) -> String {
+fn part_b(input: &str) -> String {
 	let count = input.lines().filter(validate_password_b).count();
 	format!("{}", count)
 }

@@ -1,10 +1,14 @@
+fn main() {
+	year_2020::print_answers(8, &[part_a, part_b]);
+}
+
 enum Instruction {
 	Accumulate(i32),
 	Jump(i32),
 	NoOp(i32),
 }
 
-fn parse_instructions(input: String) -> Vec<Instruction> {
+fn parse_instructions(input: &str) -> Vec<Instruction> {
 	input
 		.lines()
 		.map(|line| {
@@ -59,13 +63,13 @@ fn execute_instructions(instructions: &[Instruction], change: Option<i32>) -> (i
 	}
 }
 
-pub fn part_a(input: String) -> String {
+fn part_a(input: &str) -> String {
 	let instructions = parse_instructions(input);
 	let (result, _) = execute_instructions(&instructions, None);
 	format!("{}", result)
 }
 
-pub fn part_b(input: String) -> String {
+fn part_b(input: &str) -> String {
 	let instructions = parse_instructions(input);
 	let result = (0..)
 		.find_map(|n| match execute_instructions(&instructions, Some(n)) {

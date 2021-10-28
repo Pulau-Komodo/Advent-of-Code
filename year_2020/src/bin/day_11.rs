@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(11, &[get_answers]);
+}
+
 #[derive(PartialEq, Clone)]
 enum Space {
 	Floor,
@@ -10,7 +14,7 @@ enum Seat {
 	Occupied,
 }
 
-fn read_seats(input: String) -> Vec<Vec<Space>> {
+fn read_seats(input: &str) -> Vec<Vec<Space>> {
 	input
 		.lines()
 		.map(|line| {
@@ -149,7 +153,7 @@ fn find_final_state(mut seat_state: Vec<Vec<Space>>, part_2: bool) -> Vec<Vec<Sp
 	}
 }
 
-pub fn get_answers(input: String) -> String {
+fn get_answers(input: &str) -> String {
 	let seat_state = read_seats(input);
 	let final_state_1 = find_final_state(seat_state.clone(), false);
 	let occupied_count_1 = count_occupied_seats(&final_state_1);

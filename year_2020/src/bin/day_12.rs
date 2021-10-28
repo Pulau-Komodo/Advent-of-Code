@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(12, &[get_answers]);
+}
+
 enum Instruction {
 	North(i64),
 	South(i64),
@@ -9,7 +13,7 @@ enum Instruction {
 	TurnAround,
 }
 
-fn parse_instructions(input: String) -> Vec<Instruction> {
+fn parse_instructions(input: &str) -> Vec<Instruction> {
 	input
 		.lines()
 		.map(|line| {
@@ -120,7 +124,7 @@ fn execute_instructions_2(instructions: &[Instruction]) -> (i64, i64) {
 	(ship_x, ship_y)
 }
 
-pub fn get_answers(input: String) -> String {
+fn get_answers(input: &str) -> String {
 	let instructions = parse_instructions(input);
 	let (x, y) = execute_instructions(&instructions);
 	let sum = x.abs() + y.abs();

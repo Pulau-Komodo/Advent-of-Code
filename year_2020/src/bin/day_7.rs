@@ -1,4 +1,8 @@
-pub fn part_a(input: String) -> String {
+fn main() {
+	year_2020::print_answers(7, &[part_a, part_b]);
+}
+
+fn part_a(input: &str) -> String {
 	let bags = input
 		.lines()
 		.map(parse_bag_rule)
@@ -48,7 +52,7 @@ fn count_bags_containing_bag(
 	count
 }
 
-pub fn part_b(input: String) -> String {
+fn part_b(input: &str) -> String {
 	let bags = input
 		.lines()
 		.map(parse_bag_rule_b)

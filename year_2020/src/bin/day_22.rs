@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(22, &[get_answer_1, get_answer_2]);
+}
+
 struct GameState {
 	deck_one: Vec<u8>,
 	deck_two: Vec<u8>,
@@ -98,16 +102,16 @@ impl GameState {
 	}
 }
 
-pub fn get_answer_1(input: String) -> String {
-	let mut game_state = GameState::from_str(&input);
+fn get_answer_1(input: &str) -> String {
+	let mut game_state = GameState::from_str(input);
 	while !game_state.is_settled() {
 		game_state.advance()
 	}
 	format!("{}", game_state.score())
 }
 
-pub fn get_answer_2(input: String) -> String {
-	let mut game_state = GameState::from_str(&input);
+fn get_answer_2(input: &str) -> String {
+	let mut game_state = GameState::from_str(input);
 	while !game_state.is_settled() {
 		game_state.advance_recursive()
 	}

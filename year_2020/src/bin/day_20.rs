@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(20, &[get_answer_1, get_answer_2]);
+}
+
 #[derive(Clone, Copy, Debug)]
 enum Content {
 	Empty,
@@ -198,8 +202,8 @@ fn set_uniques(tiles: &mut [Tile]) {
 	}
 }
 
-pub fn get_answer_1(input: String) -> String {
-	let mut tiles = parse_tiles(&input);
+fn get_answer_1(input: &str) -> String {
+	let mut tiles = parse_tiles(input);
 	set_uniques(&mut tiles);
 	let product: u64 = tiles
 		.iter()
@@ -409,12 +413,12 @@ fn _print_image<const SIZE: usize>(image: &[[Content; SIZE]]) {
 	}
 }
 
-pub fn get_answer_2(input: String) -> String {
-	let mut tiles = parse_tiles(&input);
+fn get_answer_2(input: &str) -> String {
+	let mut tiles = parse_tiles(input);
 	set_uniques(&mut tiles);
 	let grid = arrange_grid::<12>(tiles);
 	let mut image = merge_content::<12, 96>(grid);
-	let monster = std::fs::read_to_string("./input/2020/20_monster.txt").unwrap();
+	let monster = year_2020::read_file_special(20, "monster");
 	let monster = SeaMonster::from_str(&monster);
 	mark_sea_monsters(&mut image, monster);
 	//_print_image(&image);
@@ -428,7 +432,7 @@ mod tests {
 
 	#[test]
 	fn count_sides() {
-		let input = std::fs::read_to_string("./input/2020/20.txt").unwrap();
+		let input = year_2020::read_file(20);
 		let tiles = parse_tiles(&input);
 		println!("{} tiles", tiles.len());
 		let mut side_map = std::collections::HashMap::<u16, u8>::new();
@@ -467,7 +471,7 @@ mod tests {
 	}
 	#[test]
 	fn rotate_monster() {
-		let monster = std::fs::read_to_string("./input/2020/20_monster.txt").unwrap();
+		let monster = year_2020::read_file_special(20, "monster");
 		let mut monster = SeaMonster::from_str(&monster);
 		monster._print();
 		monster.rotate();
@@ -503,7 +507,7 @@ mod tests {
 	}
 	#[test]
 	fn sample_input() {
-		let input = std::fs::read_to_string("./input/2020/20_sample.txt").unwrap();
+		let input = year_2020::read_file(20);
 		let mut tiles = parse_tiles(&input);
 		set_uniques(&mut tiles);
 		let grid = arrange_grid::<3>(tiles);

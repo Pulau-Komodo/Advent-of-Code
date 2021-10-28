@@ -1,4 +1,8 @@
-pub fn get_answers(input: String) -> String {
+fn main() {
+	year_2020::print_answers(10, &[get_answers]);
+}
+
+fn get_answers(input: &str) -> String {
 	let mut adapters = input
 		.lines()
 		.map(str::parse::<u16>)
@@ -26,7 +30,7 @@ pub fn get_answers(input: String) -> String {
 	format!("1: {}, 2: {}", product, possibilities)
 }
 
-pub fn calculate_possibilities(one_jolt_cluster_size: u16) -> u64 {
+fn calculate_possibilities(one_jolt_cluster_size: u16) -> u64 {
 	match one_jolt_cluster_size {
 		0..=1 => 1,
 		2 => 2,

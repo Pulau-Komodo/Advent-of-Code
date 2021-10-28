@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(17, &[get_answer_1, get_answer_2]);
+}
+
 type Grid = Vec<Vec<Vec<Vec<bool>>>>;
 type GridRef<'l> = &'l [Vec<Vec<Vec<bool>>>];
 
@@ -134,8 +138,8 @@ fn count_active(state: GridRef) -> usize {
 		.sum()
 }
 
-pub fn get_answer_1(input: String) -> String {
-	let mut state = read_input_and_initialize(&input, 6, false);
+fn get_answer_1(input: &str) -> String {
+	let mut state = read_input_and_initialize(input, 6, false);
 	for _ in 0..6 {
 		state = cycle(state);
 	}
@@ -143,8 +147,8 @@ pub fn get_answer_1(input: String) -> String {
 	format!("{}", count)
 }
 
-pub fn get_answer_2(input: String) -> String {
-	let mut state = read_input_and_initialize(&input, 6, true);
+fn get_answer_2(input: &str) -> String {
+	let mut state = read_input_and_initialize(input, 6, true);
 	for _ in 0..6 {
 		state = cycle(state);
 	}
@@ -186,7 +190,7 @@ mod tests {
 	}
 	#[test]
 	fn initialize() {
-		let input = std::fs::read_to_string("./input/2020/17.txt").expect("Could not read file");
+		let input = year_2020::read_file(17);
 		println!("{:?}", read_input_and_initialize(&input, 6, false));
 	}
 	#[test]

@@ -1,4 +1,8 @@
-pub fn part_a(input: String) -> String {
+fn main() {
+	year_2020::print_answers(4, &[part_a, part_b]);
+}
+
+fn part_a(input: &str) -> String {
 	let passports = input.split("\r\n\r\n");
 	let count = passports.filter(validate_passport_a).count();
 	format!("{}", count)
@@ -35,7 +39,7 @@ fn validate_passport_a(passport: &&str) -> bool {
 		&& passport_id
 }
 
-pub fn part_b(input: String) -> String {
+fn part_b(input: &str) -> String {
 	let passports = input.split("\r\n\r\n");
 	let count = passports.filter(validate_passport_b).count();
 	format!("{}", count)
@@ -115,8 +119,7 @@ mod tests {
 	use super::*;
 	#[test]
 	fn test_part_a() {
-		let input = std::fs::read_to_string(format!("./input/{}/{}.txt", 2020, 4))
-			.expect("Could not read file");
-		assert_eq!(part_a(input), format!("{}", 204))
+		let input = year_2020::read_file(4);
+		assert_eq!(part_a(&input), "204".to_string())
 	}
 }

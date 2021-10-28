@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(19, &[get_answer_1, get_answer_2]);
+}
+
 #[derive(PartialEq, Debug, Clone)]
 enum Character {
 	A,
@@ -123,7 +127,7 @@ fn validate_message(message: &[Character], rule_id: u8, rules: &RuleSet) -> Inde
 	output
 }
 
-pub fn get_answer_1(input: String) -> String {
+fn get_answer_1(input: &str) -> String {
 	let (rules, messages) = input.split_once("\r\n\r\n").unwrap();
 	let rules = parse_rules(rules);
 	let messages = parse_messages(messages);
@@ -134,7 +138,7 @@ pub fn get_answer_1(input: String) -> String {
 	format!("{}", valid_count)
 }
 
-pub fn get_answer_2(input: String) -> String {
+fn get_answer_2(input: &str) -> String {
 	let (rules, messages) = input.split_once("\r\n\r\n").unwrap();
 	let rules = parse_rules(rules);
 	let rules = override_rules("8: 42 | 42 8\n11: 42 31 | 42 11 31", rules);
@@ -166,8 +170,7 @@ mod tests {
 	}
 	#[test]
 	fn validate_one_long() {
-		let input =
-			std::fs::read_to_string(format!("./input/2020/19.txt")).expect("Could not read file");
+		let input = year_2020::read_file(19);
 		let (rules, _) = input.split_once("\r\n\r\n").unwrap();
 		let rules = parse_rules(rules);
 		let message = parse_message("babbaabbbabaaabbababaaaa");
@@ -175,7 +178,7 @@ mod tests {
 	}
 	#[test]
 	fn sample_input() {
-		let input = String::from("0: 4 1 5\n1: 2 3 | 3 2\n2: 4 4 | 5 5\n3: 4 5 | 5 4\n4: \"a\"\n5: \"b\"\r\n\r\nababbb\nbababa\nabbbab\naaabbb\naaaabbb");
+		let input = "0: 4 1 5\n1: 2 3 | 3 2\n2: 4 4 | 5 5\n3: 4 5 | 5 4\n4: \"a\"\n5: \"b\"\r\n\r\nababbb\nbababa\nabbbab\naaabbb\naaaabbb";
 		assert_eq!(get_answer_1(input), "2");
 	}
 	#[test]

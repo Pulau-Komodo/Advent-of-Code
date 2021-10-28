@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(15, &[get_answers]);
+}
+
 type NumberMap = std::collections::HashMap<u64, u32>;
 
 fn process_input(input: &str) -> (NumberMap, u64) {
@@ -30,8 +34,8 @@ fn get_nth_number(mut map: NumberMap, mut last_number: u64, n: u32) -> u64 {
 	last_number
 }
 
-pub fn get_answers(input: String) -> String {
-	let (mut map, last_number) = process_input(&input);
+fn get_answers(input: &str) -> String {
+	let (mut map, last_number) = process_input(input);
 	let number_2020 = get_nth_number(map.clone(), last_number, 2020);
 	map.reserve(30_000_000 - 2020);
 	let number_3e7 = get_nth_number(map, last_number, 30_000_000);

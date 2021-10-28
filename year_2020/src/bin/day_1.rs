@@ -1,4 +1,8 @@
-pub fn part_a(input: String) -> String {
+fn main() {
+	year_2020::print_answers(1, &[part_a, part_b]);
+}
+
+fn part_a(input: &str) -> String {
 	let numbers = input
 		.lines()
 		.map(|line| {
@@ -17,7 +21,7 @@ pub fn part_a(input: String) -> String {
 	String::from("Found no solution")
 }
 
-pub fn part_b(input: String) -> String {
+fn part_b(input: &str) -> String {
 	let numbers = input
 		.lines()
 		.map(|line| {

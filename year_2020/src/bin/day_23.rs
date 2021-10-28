@@ -1,3 +1,7 @@
+fn main() {
+	year_2020::print_answers(23, &[get_answer_1, get_answer_2]);
+}
+
 struct GameState {
 	cups: std::collections::HashMap<u32, u32>,
 	current_cup: u32,
@@ -76,16 +80,16 @@ impl GameState {
 	}
 }
 
-pub fn get_answer_1(input: String) -> String {
-	let mut game = GameState::from_str_with_count(&input, input.len() as u32);
+fn get_answer_1(input: &str) -> String {
+	let mut game = GameState::from_str_with_count(input, input.len() as u32);
 	for _ in 0..100 {
 		game.advance();
 	}
 	game.output_order()
 }
 
-pub fn get_answer_2(input: String) -> String {
-	let mut game = GameState::from_str_with_count(&input, 1_000_000);
+fn get_answer_2(input: &str) -> String {
+	let mut game = GameState::from_str_with_count(input, 1_000_000);
 	for _ in 0..10_000_000 {
 		game.advance();
 	}

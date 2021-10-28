@@ -1,5 +1,9 @@
 use std::collections::HashSet;
 
+fn main() {
+	year_2020::print_answers(21, &[get_answer_1, get_answer_2]);
+}
+
 struct Product {
 	ingredients: Vec<String>,
 	allergens: Vec<String>,
@@ -64,8 +68,8 @@ impl ProductList {
 	}
 }
 
-pub fn get_answer_1(input: String) -> String {
-	let product_list = ProductList::from_str(&input);
+fn get_answer_1(input: &str) -> String {
+	let product_list = ProductList::from_str(input);
 	let ingredients = product_list.narrow_down_allergens();
 	let count: usize = ingredients
 		.iter()
@@ -81,8 +85,8 @@ pub fn get_answer_1(input: String) -> String {
 	format!("{}", count)
 }
 
-pub fn get_answer_2(input: String) -> String {
-	let product_list = ProductList::from_str(&input);
+fn get_answer_2(input: &str) -> String {
+	let product_list = ProductList::from_str(input);
 	let ingredients = product_list.narrow_down_allergens();
 	let mut dangerous_ingredients: Vec<(_, _)> = ingredients
 		.into_iter()
@@ -137,12 +141,12 @@ mod tests {
 	}
 	#[test]
 	fn sample_data_part_1() {
-		let input = "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)\ntrh fvjkl sbzzf mxmxvkd (contains dairy)\nsqjhc fvjkl (contains soy)\nsqjhc mxmxvkd sbzzf (contains fish)".to_string();
+		let input = "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)\ntrh fvjkl sbzzf mxmxvkd (contains dairy)\nsqjhc fvjkl (contains soy)\nsqjhc mxmxvkd sbzzf (contains fish)";
 		assert_eq!(get_answer_1(input), "5".to_string())
 	}
 	#[test]
 	fn sample_data_part_2() {
-		let input = "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)\ntrh fvjkl sbzzf mxmxvkd (contains dairy)\nsqjhc fvjkl (contains soy)\nsqjhc mxmxvkd sbzzf (contains fish)".to_string();
+		let input = "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)\ntrh fvjkl sbzzf mxmxvkd (contains dairy)\nsqjhc fvjkl (contains soy)\nsqjhc mxmxvkd sbzzf (contains fish)";
 		assert_eq!(get_answer_2(input), "mxmxvkd,sqjhc,fvjkl".to_string())
 	}
 }
