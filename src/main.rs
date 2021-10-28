@@ -48,6 +48,7 @@ fn main() {
 		("2020", "23", "a") => year_2020::day_23::get_answer_1(input),
 		("2020", "23", "b") => year_2020::day_23::get_answer_2(input),
 		("2020", "24", _) => year_2020::day_24::get_answers(input),
+		("2020", "25", _) => year_2020::day_25::get_answer(input),
 		_ => unimplemented!(),
 	};
 	println!("{} ({} μs)", result, now.elapsed().as_micros());
