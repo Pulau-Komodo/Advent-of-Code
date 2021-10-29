@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(5, &[part_a, part_b]);
+	shared::print_answers(5, &[part_a, part_b]);
 }
 
 fn get_seat_id(seat: &str) -> u32 {

@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(3, &[part_a, part_b]);
+	shared::print_answers(3, &[part_a, part_b]);
 }
 
 fn count_trees(tree_map: &str, step_x: usize, step_y: usize) -> usize {

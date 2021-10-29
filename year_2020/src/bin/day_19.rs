@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(19, &[get_answer_1, get_answer_2]);
+	shared::print_answers(19, &[get_answer_1, get_answer_2]);
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -170,7 +170,7 @@ mod tests {
 	}
 	#[test]
 	fn validate_one_long() {
-		let input = year_2020::read_file(19);
+		let input = shared::read_file(19);
 		let (rules, _) = input.split_once("\r\n\r\n").unwrap();
 		let rules = parse_rules(rules);
 		let message = parse_message("babbaabbbabaaabbababaaaa");

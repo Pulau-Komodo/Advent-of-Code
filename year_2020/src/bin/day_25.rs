@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(25, &[get_answer]);
+	shared::print_answers(25, &[get_answer]);
 }
 
 struct SubjectNumber {

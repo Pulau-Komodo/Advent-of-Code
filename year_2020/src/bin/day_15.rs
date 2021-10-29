@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(15, &[get_answers]);
+	shared::print_answers(15, &[get_answers]);
 }
 
 type NumberMap = std::collections::HashMap<u64, u32>;

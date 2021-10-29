@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(18, &[get_answer_1, get_answer_2]);
+	shared::print_answers(18, &[get_answer_1, get_answer_2]);
 }
 
 #[derive(Debug, Clone)]

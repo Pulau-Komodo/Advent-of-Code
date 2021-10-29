@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(13, &[get_answers]);
+	shared::print_answers(13, &[get_answers]);
 }
 
 fn parse_input(input: &str) -> (i32, Vec<(usize, i32)>) {
@@ -79,7 +79,7 @@ mod tests {
 	}
 	#[test]
 	fn full_input() {
-		let input = year_2020::read_file(13);
+		let input = shared::read_file(13);
 		assert_eq!(
 			get_answers(&input),
 			String::from("1: 2298, 2: 783685719679632")

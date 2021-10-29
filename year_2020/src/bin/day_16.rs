@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(16, &[get_answers]);
+	shared::print_answers(16, &[get_answers]);
 }
 
 type Range = std::ops::RangeInclusive<u32>;

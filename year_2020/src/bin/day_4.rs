@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(4, &[part_a, part_b]);
+	shared::print_answers(4, &[part_a, part_b]);
 }
 
 fn part_a(input: &str) -> String {
@@ -119,7 +119,7 @@ mod tests {
 	use super::*;
 	#[test]
 	fn test_part_a() {
-		let input = year_2020::read_file(4);
+		let input = shared::read_file(4);
 		assert_eq!(part_a(&input), "204".to_string())
 	}
 }

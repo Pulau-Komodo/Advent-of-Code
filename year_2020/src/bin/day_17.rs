@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(17, &[get_answer_1, get_answer_2]);
+	shared::print_answers(17, &[get_answer_1, get_answer_2]);
 }
 
 type Grid = Vec<Vec<Vec<Vec<bool>>>>;
@@ -190,7 +190,7 @@ mod tests {
 	}
 	#[test]
 	fn initialize() {
-		let input = year_2020::read_file(17);
+		let input = shared::read_file(17);
 		println!("{:?}", read_input_and_initialize(&input, 6, false));
 	}
 	#[test]

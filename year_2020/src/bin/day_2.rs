@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(2, &[part_a, part_b]);
+	shared::print_answers(2, &[part_a, part_b]);
 }
 
 fn split_password_line(password_line: &str) -> (usize, usize, char, &str) {

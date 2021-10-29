@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(9, &[get_answers]);
+	shared::print_answers(9, &[get_answers]);
 }
 
 fn parse_input(input: &str) -> Vec<u64> {

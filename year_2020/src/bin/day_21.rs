@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 fn main() {
-	year_2020::print_answers(21, &[get_answer_1, get_answer_2]);
+	shared::print_answers(21, &[get_answer_1, get_answer_2]);
 }
 
 struct Product {

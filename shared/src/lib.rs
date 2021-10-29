@@ -13,7 +13,7 @@ pub fn read_file_special(day: u8, addition: &str) -> String {
 	.expect("Could not read file")
 }
 
-pub fn print_answers(day: u8, functions: &[fn(&str) -> String]) {
+pub fn print_answers<T: std::fmt::Display>(day: u8, functions: &[fn(&str) -> T]) {
 	let input = read_file(day);
 	let mut now = std::time::Instant::now();
 	if functions.len() == 1 {

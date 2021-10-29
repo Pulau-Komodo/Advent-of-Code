@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(10, &[get_answers]);
+	shared::print_answers(10, &[get_answers]);
 }
 
 fn get_answers(input: &str) -> String {

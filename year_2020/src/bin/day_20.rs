@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(20, &[get_answer_1, get_answer_2]);
+	shared::print_answers(20, &[get_answer_1, get_answer_2]);
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -418,7 +418,7 @@ fn get_answer_2(input: &str) -> String {
 	set_uniques(&mut tiles);
 	let grid = arrange_grid::<12>(tiles);
 	let mut image = merge_content::<12, 96>(grid);
-	let monster = year_2020::read_file_special(20, "monster");
+	let monster = shared::read_file_special(20, "monster");
 	let monster = SeaMonster::from_str(&monster);
 	mark_sea_monsters(&mut image, monster);
 	//_print_image(&image);
@@ -432,7 +432,7 @@ mod tests {
 
 	#[test]
 	fn count_sides() {
-		let input = year_2020::read_file(20);
+		let input = shared::read_file(20);
 		let tiles = parse_tiles(&input);
 		println!("{} tiles", tiles.len());
 		let mut side_map = std::collections::HashMap::<u16, u8>::new();
@@ -471,7 +471,7 @@ mod tests {
 	}
 	#[test]
 	fn rotate_monster() {
-		let monster = year_2020::read_file_special(20, "monster");
+		let monster = shared::read_file_special(20, "monster");
 		let mut monster = SeaMonster::from_str(&monster);
 		monster._print();
 		monster.rotate();
@@ -507,7 +507,7 @@ mod tests {
 	}
 	#[test]
 	fn sample_input() {
-		let input = year_2020::read_file(20);
+		let input = shared::read_file(20);
 		let mut tiles = parse_tiles(&input);
 		set_uniques(&mut tiles);
 		let grid = arrange_grid::<3>(tiles);

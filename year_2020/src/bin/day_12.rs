@@ -1,5 +1,5 @@
 fn main() {
-	year_2020::print_answers(12, &[get_answers]);
+	shared::print_answers(12, &[get_answers]);
 }
 
 enum Instruction {
