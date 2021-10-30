@@ -51,9 +51,9 @@ fn md5(data: &[u8]) -> u128 {
 	let original_length = data.len() as u64 * 8; // % (2.pow(64));
 	let mut data = data.to_vec();
 	data.push(0x80);
-	while data.len() % 64 != 56 {
-		data.push(0);
-	}
+	let needed_padding = 64 - (data.len() + 8) % 64;
+	data.reserve_exact(needed_padding + 8);
+	data.resize(data.len() + needed_padding, 0);
 	data.extend_from_slice(&original_length.to_le_bytes());
 	let (mut a, mut b, mut c, mut d) = (A, B, C, D);
 	for chunk in data.chunks_exact(64) {
@@ -119,6 +119,14 @@ mod tests {
 		test_hash(
 			"The quick brown fox jumps over the lazy dog",
 			0x9e107d9d372bb6826bd81d3542a419d6,
+		);
+	}
+
+	#[test]
+	fn long() {
+		test_hash(
+			"This is a longer message intended to test whether the hashing still works if the data spreads across multiple chunks.",
+			0x1151cc2370bb985a7827614546c1047c,
 		);
 	}
 
