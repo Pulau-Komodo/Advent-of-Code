@@ -19,7 +19,12 @@ fn get_answers(input: &str) -> String {
 			break;
 		}
 	}
-	format!("1: {} ({} μs), 2: {}", first.unwrap(), first_time.unwrap(), second.unwrap())
+	format!(
+		"1: {} ({} μs), 2: {}",
+		first.unwrap(),
+		first_time.unwrap(),
+		second.unwrap()
+	)
 }
 
 const THRESHOLD_1: u128 = 0x0000_1000_0000_0000_0000_0000_0000_0000;
