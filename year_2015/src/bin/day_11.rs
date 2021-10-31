@@ -1,5 +1,3 @@
-use std::ops::Div;
-
 fn main() {
 	shared::print_answers(11, &[get_answers]);
 }
@@ -27,6 +25,7 @@ const CHARS: [char; 23] = [
 
 struct Password {
 	value: u64,
+	bytes: [u8; 8],
 }
 
 impl Password {
@@ -44,7 +43,12 @@ impl Password {
 				(*char_values.get(&char).unwrap() as u64) * 23u64.pow(place as u32)
 			})
 			.sum();
-		Self { value }
+		let mut pw = Self {
+			value,
+			bytes: [8u8; 8],
+		};
+		pw.update_bytes();
+		pw
 	}
 	fn as_string(&self) -> String {
 		let mut value = self.value;
@@ -52,19 +56,18 @@ impl Password {
 			.rev()
 			.map(|n| {
 				let pos_value = 23u64.pow(n);
-				let char_value = value.div(pos_value) as usize;
+				let char_value = (value / pos_value) as usize;
 				value %= pos_value;
 				CHARS[char_value]
 			})
 			.collect()
 	}
 	fn is_valid(&self) -> bool {
-		let string = self.as_string();
 		let mut prev_byte = 0;
 		let mut overlap_count: u8 = 0;
 		let mut chain_length: u8 = 0;
-		let mut prev_overlapped = false;
-		for byte in string.into_bytes() {
+		let mut prev_overlapped = true; // True to make it not match on first
+		for byte in self.bytes {
 			if byte == prev_byte && !prev_overlapped && overlap_count < 2 {
 				overlap_count += 1;
 				prev_overlapped = true;
@@ -87,6 +90,16 @@ impl Password {
 	}
 	fn increment(&mut self) {
 		self.value += 1;
+		self.update_bytes();
+	}
+	fn update_bytes(&mut self) {
+		let mut value = self.value;
+		for n in (0..8).rev() {
+			let pos_value = 23u64.pow(n as u32);
+			let char_value = (value / pos_value) as u8;
+			value %= pos_value;
+			self.bytes[7 - n] = char_value;
+		}
 	}
 }
 
