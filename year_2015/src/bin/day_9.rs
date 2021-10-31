@@ -6,25 +6,7 @@ fn main() {
 
 fn get_answers(input: &str) -> String {
 	let mut data = LocationData::from_str(input);
-	let mut distances = Vec::with_capacity(data.route.len());
-	let mut c = vec![0; data.route.len()];
-	let mut i = 0;
-	distances.push(data.route_distance());
-	while i < data.route.len() {
-		if c[i] < i {
-			if i % 2 == 0 {
-				data.route.swap(0, i);
-			} else {
-				data.route.swap(c[i], i);
-			}
-			distances.push(data.route_distance());
-			c[i] += 1;
-			i = 0;
-		} else {
-			c[i] = 0;
-			i += 1;
-		}
-	}
+	let distances = data.all_distances();
 	let (min, max) = distances
 		.iter()
 		.fold((u32::MAX, u32::MIN), |(min, max), &distance| {
@@ -68,5 +50,27 @@ impl<'l> LocationData<'l> {
 			.windows(2)
 			.map(|locations| self.get_distance(locations[0], locations[1]))
 			.sum()
+	}
+	fn all_distances(&mut self) -> Vec<u32> {
+		let mut distances = Vec::with_capacity(self.route.len());
+		let mut c = vec![0; self.route.len()];
+		let mut i = 0;
+		distances.push(self.route_distance());
+		while i < self.route.len() {
+			if c[i] < i {
+				if i % 2 == 0 {
+					self.route.swap(0, i);
+				} else {
+					self.route.swap(c[i], i);
+				}
+				distances.push(self.route_distance());
+				c[i] += 1;
+				i = 0;
+			} else {
+				c[i] = 0;
+				i += 1;
+			}
+		}
+		distances
 	}
 }
