@@ -111,18 +111,19 @@ impl Iterator for CombinationsWithRepetitions {
 fn find_highest_score(candies: &[Candy], calorie_target: Option<i64>) -> i64 {
 	let mut highest_score = 0;
 	for counts in CombinationsWithRepetitions::new(candies.len(), 100) {
-		let (capacity, durability, flavour, texture, calories) = counts.iter().zip(candies.iter()).fold(
-			(0, 0, 0, 0, 0),
-			|(capacity, durability, flavour, texture, calories), (&count, candy)| {
-				(
-					capacity + candy.capacity as i64 * count as i64,
-					durability + candy.durability as i64 * count as i64,
-					flavour + candy.flavour as i64 * count as i64,
-					texture + candy.texture as i64 * count as i64,
-					calories + candy.calories as i64 * count as i64,
-				)
-			},
-		);
+		let (capacity, durability, flavour, texture, calories) =
+			counts.iter().zip(candies.iter()).fold(
+				(0, 0, 0, 0, 0),
+				|(capacity, durability, flavour, texture, calories), (&count, candy)| {
+					(
+						capacity + candy.capacity as i64 * count as i64,
+						durability + candy.durability as i64 * count as i64,
+						flavour + candy.flavour as i64 * count as i64,
+						texture + candy.texture as i64 * count as i64,
+						calories + candy.calories as i64 * count as i64,
+					)
+				},
+			);
 		if let Some(target) = calorie_target {
 			if calories != target {
 				continue;
