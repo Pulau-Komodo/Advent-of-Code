@@ -21,22 +21,22 @@ fn get_answer_2(input: &str) -> usize {
 
 #[derive(Clone, Copy, Debug)]
 enum Offset {
-	Increment,
-	Stay,
-	Decrement,
+	Up,
+	None,
+	Down,
 }
 
 const ADJACENT: [(Offset, Offset); 8] = {
 	use Offset::*;
 	[
-		(Increment, Increment),
-		(Increment, Stay),
-		(Increment, Decrement),
-		(Stay, Decrement),
-		(Decrement, Decrement),
-		(Decrement, Stay),
-		(Decrement, Increment),
-		(Stay, Increment),
+		(Up, Up),
+		(Up, None),
+		(Up, Down),
+		(None, Down),
+		(Down, Down),
+		(Down, None),
+		(Down, Up),
+		(None, Up),
 	]
 };
 
@@ -50,11 +50,9 @@ impl Grid {
 		let on = str
 			.lines()
 			.enumerate()
-			.map(|(y, line)| {
-				line.char_indices()
-					.filter_map(move |(x, char)| (char == '#').then(|| (x as u8, y as u8)))
-			})
+			.map(|(y, line)| line.char_indices().map(move |(x, char)| (x, y, char)))
 			.flatten()
+			.filter_map(|(x, y, char)| (char == '#').then(|| (x as u8, y as u8)))
 			.collect();
 		Self {
 			on,
@@ -112,22 +110,17 @@ impl Grid {
 }
 
 fn get_nearby_coords((x, y): (u8, u8), (offset_x, offset_y): (Offset, Offset)) -> Option<(u8, u8)> {
-	use Offset::*;
 	let x = match (offset_x, x) {
-		(Decrement, n @ 1..) => n - 1,
-		(Stay, n) => n,
-		(Increment, n @ 0..=98) => n + 1,
-		_ => {
-			return None;
-		}
+		(Offset::Down, n @ 1..) => n - 1,
+		(Offset::None, n) => n,
+		(Offset::Up, n @ 0..=98) => n + 1,
+		_ => return None,
 	};
 	let y = match (offset_y, y) {
-		(Decrement, n @ 1..) => n - 1,
-		(Stay, n) => n,
-		(Increment, n @ 0..=98) => n + 1,
-		_ => {
-			return None;
-		}
+		(Offset::Down, n @ 1..) => n - 1,
+		(Offset::None, n) => n,
+		(Offset::Up, n @ 0..=98) => n + 1,
+		_ => return None,
 	};
 	Some((x, y))
 }
