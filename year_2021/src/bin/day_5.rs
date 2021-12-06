@@ -3,18 +3,17 @@ fn main() {
 }
 
 fn get_answer_1(input: &str) -> u32 {
-	let include_diagonals = false;
-	let vents = vent_map(parse_input(input, include_diagonals));
+	let lines = parse_input(input, false);
+	let vents = vent_map(lines);
 	vents.iter().filter(|(_, &count)| count > 1).count() as u32
 }
 
 fn get_answer_2(input: &str) -> u32 {
-	let include_diagonals = true;
-	let vents = vent_map(parse_input(input, include_diagonals));
+	let lines = parse_input(input, true);
+	let vents = vent_map(lines);
 	vents.iter().filter(|(_, &count)| count > 1).count() as u32
 }
 
-#[derive(PartialEq, Eq, Hash)]
 struct Point {
 	x: i16,
 	y: i16,
@@ -22,10 +21,7 @@ struct Point {
 
 type Line = (Point, Point);
 
-fn parse_input(
-	input: &str,
-	include_diagonals: bool,
-) -> impl Iterator<Item = Line> + '_ {
+fn parse_input(input: &str, include_diagonals: bool) -> impl Iterator<Item = Line> + '_ {
 	input
 		.lines()
 		.map(|line| {
@@ -45,23 +41,20 @@ fn parse_input(
 				},
 				Point {
 					x: end_x.parse().unwrap(),
-					y: end_y.parse().unwrap()
+					y: end_y.parse().unwrap(),
 				},
 			)
 		})
 }
 
-fn vent_map(lines: impl Iterator<Item = Line>) -> std::collections::HashMap::<Point, u8> {
+fn vent_map(lines: impl Iterator<Item = Line>) -> std::collections::HashMap<(i16, i16), u8> {
 	let mut map = std::collections::HashMap::new();
 	for (start, end) in lines {
 		let (d_x, d_y) = (end.x - start.x, end.y - start.y);
 		let steps = d_x.abs().max(d_y.abs());
 		let (s_x, s_y) = (d_x.signum(), d_y.signum());
 		for i in 0..=steps {
-			let point = Point {
-				x: start.x + i * s_x,
-				y: start.y + i * s_y,
-			};
+			let point = (start.x + i * s_x, start.y + i * s_y);
 			let entry = map.entry(point).or_default();
 			*entry += 1;
 		}
