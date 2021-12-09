@@ -55,14 +55,21 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 			.map(|Point { x, y }: Point| self.map[y][x] as u32 + 1)
 			.sum()
 	}
-	fn basin_size(&self, point: Point) -> usize {
-		let mut outer_edge = vec![point];
-		let mut basin = std::collections::HashSet::<Point>::new();
+	fn basin_size(
+		&self,
+		point: Point,
+		outer_edge: &mut Vec<Point>,
+		new_outer_edge: &mut Vec<Point>,
+		basin: &mut std::collections::HashSet<Point>,
+	) -> usize {
+		outer_edge.clear();
+		outer_edge.push(point);
+		basin.clear();
 		basin.insert(point);
 		loop {
-			let mut new_outer_edge = vec![];
+			new_outer_edge.clear();
 			for edge_point in outer_edge.iter() {
-				for nearby in self.find_nearby_higher(*edge_point) {
+				for nearby in self.find_nearby_non_9(*edge_point) {
 					if basin.insert(nearby) {
 						new_outer_edge.push(nearby);
 					}
@@ -71,34 +78,36 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 			if new_outer_edge.is_empty() {
 				break basin.len();
 			}
-			outer_edge = new_outer_edge;
+			*outer_edge = new_outer_edge.clone();
 		}
 	}
-	fn find_nearby_higher(&self, Point { x, y }: Point) -> Vec<Point> {
+	fn find_nearby_non_9(&self, Point { x, y }: Point) -> Vec<Point> {
 		let value = self.map[y][x];
 		if value == 8 {
 			return Vec::with_capacity(0);
 		}
 		let mut output = Vec::with_capacity(4);
-		let range = value + 1..9;
-		if y > 0 && range.contains(&self.map[y - 1][x]) {
+		if y > 0 && self.map[y - 1][x] != 9 {
 			output.push(Point { y: y - 1, x });
 		}
-		if x < SIZE - 1 && range.contains(&self.map[y][x + 1]) {
+		if x < SIZE - 1 && self.map[y][x + 1] != 9 {
 			output.push(Point { y, x: x + 1 });
 		}
-		if y < SIZE - 1 && range.contains(&self.map[y + 1][x]) {
+		if y < SIZE - 1 && self.map[y + 1][x] != 9 {
 			output.push(Point { y: y + 1, x });
 		}
-		if x > 0 && range.contains(&self.map[y][x - 1]) {
+		if x > 0 && self.map[y][x - 1] != 9 {
 			output.push(Point { y, x: x - 1 });
 		}
 		output
 	}
 	fn three_largest_basins(&self) -> [usize; 3] {
 		let mut largest = [0; 3];
+		let mut outer_edge = Vec::new();
+		let mut new_outer_edge = Vec::new();
+		let mut basin = std::collections::HashSet::new();
 		for minimum in self.local_minima() {
-			let size = self.basin_size(minimum);
+			let size = self.basin_size(minimum, &mut outer_edge, &mut new_outer_edge, &mut basin);
 			if size >= largest[0] {
 				largest[2] = largest[1];
 				largest[1] = largest[0];
@@ -106,7 +115,7 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 			} else if size >= largest[1] {
 				largest[2] = largest[1];
 				largest[1] = size;
-			} else if size >= largest[2] {
+			} else if size > largest[2] {
 				largest[2] = size;
 			}
 		}
