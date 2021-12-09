@@ -55,32 +55,6 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 			.map(|Point { x, y }: Point| self.map[y][x] as u32 + 1)
 			.sum()
 	}
-	fn basin_size(
-		&self,
-		point: Point,
-		outer_edge: &mut Vec<Point>,
-		new_outer_edge: &mut Vec<Point>,
-		basin: &mut std::collections::HashSet<Point>,
-	) -> usize {
-		outer_edge.clear();
-		outer_edge.push(point);
-		basin.clear();
-		basin.insert(point);
-		loop {
-			new_outer_edge.clear();
-			for edge_point in outer_edge.iter() {
-				for nearby in self.find_nearby_non_9(*edge_point) {
-					if basin.insert(nearby) {
-						new_outer_edge.push(nearby);
-					}
-				}
-			}
-			if new_outer_edge.is_empty() {
-				break basin.len();
-			}
-			*outer_edge = new_outer_edge.clone();
-		}
-	}
 	fn find_nearby_non_9(&self, Point { x, y }: Point) -> Vec<Point> {
 		let value = self.map[y][x];
 		if value == 8 {
@@ -102,12 +76,10 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 		output
 	}
 	fn three_largest_basins(&self) -> [usize; 3] {
+		let mut basin_finder = BasinFinder::with_height_map(self);
 		let mut largest = [0; 3];
-		let mut outer_edge = Vec::new();
-		let mut new_outer_edge = Vec::new();
-		let mut basin = std::collections::HashSet::new();
 		for minimum in self.local_minima() {
-			let size = self.basin_size(minimum, &mut outer_edge, &mut new_outer_edge, &mut basin);
+			let size = basin_finder.basin_size(minimum);
 			if size >= largest[0] {
 				largest[2] = largest[1];
 				largest[1] = largest[0];
@@ -120,5 +92,43 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 			}
 		}
 		largest
+	}
+}
+
+struct BasinFinder<'l, const SIZE: usize> {
+	height_map: &'l HeightMap<SIZE>,
+	outer_edge: Vec<Point>,
+	new_outer_edge: Vec<Point>,
+	basin: std::collections::HashSet<Point>,
+}
+
+impl<'l, const SIZE: usize> BasinFinder<'l, SIZE> {
+	fn with_height_map(height_map: &'l HeightMap<SIZE>) -> Self {
+		Self {
+			height_map,
+			outer_edge: Vec::new(),
+			new_outer_edge: Vec::new(),
+			basin: std::collections::HashSet::new(),
+		}
+	}
+	fn basin_size(&mut self, point: Point) -> usize {
+		self.outer_edge.clear();
+		self.outer_edge.push(point);
+		self.basin.clear();
+		self.basin.insert(point);
+		loop {
+			self.new_outer_edge.clear();
+			for edge_point in self.outer_edge.iter() {
+				for nearby in self.height_map.find_nearby_non_9(*edge_point) {
+					if self.basin.insert(nearby) {
+						self.new_outer_edge.push(nearby);
+					}
+				}
+			}
+			if self.new_outer_edge.is_empty() {
+				break self.basin.len();
+			}
+			self.outer_edge = self.new_outer_edge.clone();
+		}
 	}
 }
