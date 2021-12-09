@@ -25,12 +25,21 @@ fn get_answer_2(input: &str) -> u32 {
 		.sum()
 }
 
-fn parse_input(input: &str) -> impl Iterator<Item = ([u8; 10], [u8; 4])> + '_ {
+#[derive(Clone, Copy, Default)]
+struct SignalPattern {
+	bitmap: u8,
+	signals: u8,
+}
+
+fn parse_input(input: &str) -> impl Iterator<Item = ([SignalPattern; 10], [u8; 4])> + '_ {
 	input.lines().map(|line| {
 		let (signal_patterns, output_value) = line.split_once(" | ").unwrap();
-		let (mut signal, mut output) = ([0; 10], [0; 4]);
+		let (mut signal, mut output) = ([SignalPattern::default(); 10], [0; 4]);
 		for (i, element) in signal_patterns.split(' ').enumerate() {
-			signal[i] = signal_str_to_number(element);
+			signal[i] = SignalPattern {
+				bitmap: signal_str_to_number(element),
+				signals: element.len() as u8,
+			};
 		}
 		for (i, element) in output_value.split(' ').enumerate() {
 			output[i] = signal_str_to_number(element);
@@ -42,91 +51,51 @@ fn parse_input(input: &str) -> impl Iterator<Item = ([u8; 10], [u8; 4])> + '_ {
 fn signal_str_to_number(str: &str) -> u8 {
 	let mut output = 0;
 	for char in str.chars() {
-		match char {
-			'a' => output += 1,
-			'b' => output += 1 << 1,
-			'c' => output += 1 << 2,
-			'd' => output += 1 << 3,
-			'e' => output += 1 << 4,
-			'f' => output += 1 << 5,
-			'g' => output += 1 << 6,
-			_ => panic!(),
-		}
+		output |= 1
+			<< match char {
+				'a' => 0,
+				'b' => 1,
+				'c' => 2,
+				'd' => 3,
+				'e' => 4,
+				'f' => 5,
+				'g' => 6,
+				_ => panic!(),
+			}
 	}
 	output
 }
 
-fn resolve_signal(patterns: [u8; 10]) -> [u8; 10] {
+fn resolve_signal(patterns: [SignalPattern; 10]) -> [u8; 10] {
 	let mut key = [0; 10];
-	key[1] = patterns
-		.iter()
-		.position(|&pattern| count_1_bits(pattern) == 2)
-		.unwrap();
-	key[4] = patterns
-		.iter()
-		.position(|&pattern| count_1_bits(pattern) == 4)
-		.unwrap();
-	key[7] = patterns
-		.iter()
-		.position(|&pattern| count_1_bits(pattern) == 3)
-		.unwrap();
-	key[8] = patterns
-		.iter()
-		.position(|&pattern| count_1_bits(pattern) == 7)
-		.unwrap();
-	key[3] = patterns
-		.iter()
-		.position(|&pattern| {
-			count_1_bits(pattern) == 5 && count_1_bits(pattern & patterns[key[7]]) == 3
-		})
-		.unwrap();
-	key[2] = patterns
-		.iter()
-		.position(|&pattern| {
-			count_1_bits(pattern) == 5 && count_1_bits(pattern & patterns[key[4]]) == 2
-		})
-		.unwrap();
-	key[5] = patterns
-		.iter()
-		.position(|&pattern| {
-			count_1_bits(pattern) == 5 && pattern != patterns[key[2]] && pattern != patterns[key[3]]
-		})
-		.unwrap();
-	key[9] = patterns
-		.iter()
-		.position(|&pattern| {
-			count_1_bits(pattern) == 6 && count_1_bits(pattern & patterns[key[3]]) == 5
-		})
-		.unwrap();
-	key[0] = patterns
-		.iter()
-		.position(|&pattern| {
-			count_1_bits(pattern) == 6
-				&& pattern != patterns[key[9]]
-				&& count_1_bits(pattern & patterns[key[7]]) == 3
-		})
-		.unwrap();
-	key[6] = patterns
-		.iter()
-		.position(|&pattern| {
-			count_1_bits(pattern) == 6 && count_1_bits(pattern & patterns[key[1]]) == 1
-		})
-		.unwrap();
-	let mut output = [0; 10];
-	for (i, &element) in key.iter().enumerate() {
-		output[i] = patterns[element];
+	fn get_bitmap(patterns: &[SignalPattern], predicate: &dyn Fn(&&SignalPattern) -> bool) -> u8 {
+		patterns.iter().find(predicate).unwrap().bitmap
 	}
-	output
-}
-
-fn count_1_bits(byte: u8) -> u8 {
-	let mut output = 0;
-	for i in 0..7 {
-		if byte & 1 << i != 0 {
-			output += 1
-		}
-	}
-	output
+	key[1] = get_bitmap(&patterns, &|&&pattern| pattern.signals == 2);
+	key[4] = get_bitmap(&patterns, &|&&pattern| pattern.signals == 4);
+	key[7] = get_bitmap(&patterns, &|&&pattern| pattern.signals == 3);
+	key[8] = get_bitmap(&patterns, &|&&pattern| pattern.signals == 7);
+	key[3] = get_bitmap(&patterns, &|&&pattern| {
+		pattern.signals == 5 && pattern.bitmap & key[7] == key[7]
+	});
+	key[9] = get_bitmap(&patterns, &|&&pattern| {
+		pattern.signals == 6 && pattern.bitmap & key[3] == key[3]
+	});
+	key[0] = get_bitmap(&patterns, &|&&pattern| {
+		pattern.signals == 6 && pattern.bitmap != key[9] && pattern.bitmap & key[7] == key[7]
+	});
+	key[6] = get_bitmap(&patterns, &|&&pattern| {
+		pattern.signals == 6 && pattern.bitmap != key[9] && pattern.bitmap != key[0]
+	});
+	key[5] = get_bitmap(&patterns, &|&&pattern| {
+		pattern.signals == 5
+			&& pattern.bitmap != key[3]
+			&& pattern.bitmap & key[6] == pattern.bitmap
+	});
+	key[2] = get_bitmap(&patterns, &|&&pattern| {
+		pattern.signals == 5 && pattern.bitmap != key[5] && pattern.bitmap != key[3]
+	});
+	key
 }
 
 fn read_output(key: [u8; 10], output: [u8; 4]) -> u32 {
@@ -141,15 +110,6 @@ fn read_output(key: [u8; 10], output: [u8; 4]) -> u32 {
 mod tests {
 	use super::*;
 
-	#[test]
-	fn bit_count() {
-		assert_eq!(count_1_bits(0b0), 0);
-		assert_eq!(count_1_bits(0b1), 1);
-		assert_eq!(count_1_bits(0b101010), 3);
-		assert_eq!(count_1_bits(0b001110), 3);
-		assert_eq!(count_1_bits(0b1111111), 7);
-		assert_eq!(count_1_bits(0b1111000), 4);
-	}
 	#[test]
 	fn answer_2() {
 		assert_eq!(get_answer_2("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"), 5353);
