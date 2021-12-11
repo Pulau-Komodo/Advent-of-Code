@@ -22,7 +22,7 @@ fn get_answer_2(input: &str) -> u64 {
 		.filter_map(|line| parse_line(line).ok())
 		.map(score_line)
 		.collect();
-	scores.sort();
+	scores.sort_unstable();
 	*scores.get((scores.len() - 1) / 2).unwrap()
 }
 
