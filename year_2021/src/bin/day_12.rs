@@ -12,106 +12,121 @@ fn get_answer_2(input: &str) -> u32 {
 	find_routes(links, true)
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, Debug)]
 enum Cave {
 	Start,
 	End,
-	Small(u8),
-	Large(u8),
+	Small(usize),
+	Large(usize),
 }
 
 impl<'a, 'b> Cave {
-	fn from_str_with_index_maps(
+	fn from_str_with_index_map(
 		str: &'a str,
-		small_caves: &'b mut std::collections::HashMap<&'a str, u8>,
-		large_caves: &'b mut std::collections::HashMap<&'a str, u8>,
+		caves: &'b mut std::collections::HashMap<&'a str, usize>,
 	) -> Self {
 		match str {
 			"start" => Cave::Start,
 			"end" => Cave::End,
 			x if x.chars().next().unwrap().is_ascii_lowercase() => {
-				let len = small_caves.len() as u8;
-				let index = *small_caves.entry(x).or_insert(len);
+				let len = caves.len();
+				let index = *caves.entry(x).or_insert(len);
 				Cave::Small(index)
 			}
 			x => {
-				let len = large_caves.len() as u8;
-				let index = *large_caves.entry(x).or_insert(len);
+				let len = caves.len();
+				let index = *caves.entry(x).or_insert(len);
 				Cave::Large(index)
 			}
 		}
 	}
 }
 
-fn parse_input(input: &str) -> Vec<(Cave, Cave)> {
+fn parse_input(input: &str) -> Vec<Vec<Cave>> {
 	let capacity = input.lines().count();
-	let mut small_caves = std::collections::HashMap::with_capacity(capacity / 2);
-	let mut large_caves = std::collections::HashMap::with_capacity(capacity / 2);
-	input
-		.lines()
-		.map(|line| {
-			let (first, second) = line.split_once("-").unwrap();
-			let first_cave =
-				Cave::from_str_with_index_maps(first, &mut small_caves, &mut large_caves);
-			let second_cave =
-				Cave::from_str_with_index_maps(second, &mut small_caves, &mut large_caves);
-			(first_cave, second_cave)
-		})
-		.collect()
+	let mut caves = std::collections::HashMap::with_capacity(capacity);
+	caves.insert("start", 0);
+	let mut links: Vec<Vec<Cave>> = Vec::with_capacity(capacity * 2);
+	links.push(Vec::new());
+	for line in input.lines() {
+		let (first, second) = line.split_once("-").unwrap();
+		let first_cave = Cave::from_str_with_index_map(first, &mut caves);
+		let second_cave = Cave::from_str_with_index_map(second, &mut caves);
+		for (source, destination) in std::iter::once((first_cave, second_cave))
+			.chain(std::iter::once((second_cave, first_cave)))
+		{
+			match (source, destination) {
+				(Cave::End, _) => (),
+				(_, Cave::Start) => (),
+				(Cave::Start, dest) => links[0].push(dest),
+				(Cave::Small(x) | Cave::Large(x), dest) => {
+					while links.len() < x + 1 {
+						links.push(Vec::new())
+					}
+					links[x].push(dest)
+				}
+			}
+		}
+	}
+	links
 }
 
-#[derive(Clone)]
 struct Route {
-	last: Cave,
-	small_caves: Vec<Cave>,
+	last: usize,
+	small_caves: Vec<usize>,
 	revisited_small_cave: bool,
 }
 
 impl Route {
 	fn new() -> Self {
 		Self {
-			last: Cave::Start,
+			last: 0,
 			small_caves: Vec::new(),
 			revisited_small_cave: false,
 		}
 	}
+	fn with_new_large_cave(other: &Self, cave: usize) -> Self {
+		Self {
+			last: cave,
+			small_caves: other.small_caves.clone(),
+			revisited_small_cave: other.revisited_small_cave,
+		}
+	}
+	fn with_new_small_cave(other: &Self, cave: usize, revisited: bool) -> Self {
+		let mut small_caves = Vec::with_capacity(other.small_caves.len() + !revisited as usize);
+		small_caves.extend_from_slice(&other.small_caves);
+		if !revisited {
+			small_caves.push(cave);
+		}
+		Self {
+			last: cave,
+			small_caves,
+			revisited_small_cave: other.revisited_small_cave || revisited,
+		}
+	}
 }
 
-fn find_routes(links: Vec<(Cave, Cave)>, revisit_once: bool) -> u32 {
-	let mut unfinished_routes = vec![Route::new()];
+fn find_routes(links: Vec<Vec<Cave>>, revisit_once: bool) -> u32 {
 	let mut finished_routes = 0;
+	let mut unfinished_routes = vec![Route::new()];
+	let mut new_unfinished_routes = Vec::new();
 	loop {
-		let mut new_unfinished_routes = Vec::new();
 		for route in unfinished_routes {
-			for next in links.iter().filter_map(|&(first, second)| {
-				if route.last == first {
-					Some(second)
-				} else if route.last == second {
-					Some(first)
-				} else {
-					None
-				}
-			}) {
+			for &next in &links[route.last] {
 				match next {
-					Cave::Start => (),
 					Cave::End => finished_routes += 1,
-					Cave::Large(_) => {
-						let mut route = route.clone();
-						route.last = next;
+					Cave::Large(x) => {
+						let route = Route::with_new_large_cave(&route, x);
 						new_unfinished_routes.push(route);
 					}
-					Cave::Small(_) => {
-						let visited = route.small_caves.contains(&next);
+					Cave::Small(x) => {
+						let visited = route.small_caves.contains(&x);
 						if !visited || revisit_once && !route.revisited_small_cave {
-							let mut route = route.clone();
-							route.last = next;
-							route.small_caves.push(next);
-							if visited {
-								route.revisited_small_cave = true;
-							}
+							let route = Route::with_new_small_cave(&route, x, visited);
 							new_unfinished_routes.push(route);
 						}
 					}
+					Cave::Start => unreachable!(),
 				}
 			}
 		}
@@ -119,5 +134,6 @@ fn find_routes(links: Vec<(Cave, Cave)>, revisit_once: bool) -> u32 {
 			return finished_routes;
 		}
 		unfinished_routes = new_unfinished_routes;
+		new_unfinished_routes = Vec::new();
 	}
 }
