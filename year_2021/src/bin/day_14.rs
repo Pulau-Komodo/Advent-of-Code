@@ -9,8 +9,7 @@ fn get_answer_1(input: &str) -> u64 {
 	for _ in 0..10 {
 		polymer = insert_pairs(polymer, &rules);
 	}
-	let element_counts = count_elements(polymer, last);
-	let (min, max) = element_counts.fold((u64::MAX, u64::MIN), |(min, max), n| {
+	let (min, max) = element_counts(polymer, last).fold((u64::MAX, u64::MIN), |(min, max), n| {
 		(min.min(n), max.max(n))
 	});
 	max - min
@@ -21,8 +20,7 @@ fn get_answer_2(input: &str) -> u64 {
 	for _ in 0..40 {
 		polymer = insert_pairs(polymer, &rules);
 	}
-	let element_counts = count_elements(polymer, last);
-	let (min, max) = element_counts.fold((u64::MAX, u64::MIN), |(min, max), n| {
+	let (min, max) = element_counts(polymer, last).fold((u64::MAX, u64::MIN), |(min, max), n| {
 		(min.min(n), max.max(n))
 	});
 	max - min
@@ -43,7 +41,7 @@ fn parse_template(template: &str, size: usize) -> (PairCount, u8) {
 	let mut first = bytes.next().unwrap();
 	for second in bytes {
 		let pair = Pair { first, second };
-		*pairs.entry(pair).or_default() += 1;
+		*pairs.entry(pair).or_insert(0) += 1;
 		first = second;
 	}
 	(pairs, first)
@@ -90,7 +88,7 @@ fn insert_pairs(pairs: PairCount, rules: &Ruleset) -> PairCount {
 	new_pairs
 }
 
-fn count_elements(pairs: PairCount, last: u8) -> impl Iterator<Item = u64> {
+fn element_counts(pairs: PairCount, last: u8) -> impl Iterator<Item = u64> {
 	let mut elements = HashMap::new();
 	for (Pair { first, second: _ }, count) in pairs {
 		*elements.entry(first).or_insert(0) += count;
