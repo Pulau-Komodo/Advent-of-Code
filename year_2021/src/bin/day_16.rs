@@ -14,14 +14,6 @@ fn get_answer_2(input: &str) -> u64 {
 	packet.evaluate()
 }
 
-fn char_to_byte(char: char) -> u8 {
-	match char {
-		'0'..='9' => char as u8 - 48,
-		'A'..='F' => char as u8 - 55,
-		_ => panic!(),
-	}
-}
-
 #[derive(Debug)]
 enum Packet {
 	Value {
@@ -41,12 +33,7 @@ impl Packet {
 			Self::Value { version, .. } => *version as u32,
 			Self::Operator {
 				version, contents, ..
-			} => {
-				contents
-					.iter()
-					.map(|packet| packet.version_sum())
-					.sum::<u32>() + *version as u32
-			}
+			} => contents.iter().map(Self::version_sum).sum::<u32>() + *version as u32,
 		}
 	}
 	fn evaluate(&self) -> u64 {
@@ -78,20 +65,12 @@ struct Message {
 
 impl Message {
 	fn from_str(str: &str) -> Self {
-		let mut prev_char = None;
 		let bits = str
 			.chars()
-			.filter_map(move |char| {
-				if let Some(prev) = prev_char {
-					prev_char = None;
-					Some(prev << 4_u8 | char_to_byte(char))
-				} else {
-					prev_char = Some(char_to_byte(char));
-					None
-				}
+			.flat_map(|char| {
+				let byte = char_to_byte(char);
+				(0_u8..4_u8).rev().map(move |i| 1 << i & byte != 0)
 			})
-			.map(|byte| (0_u8..8_u8).rev().map(move |i| 1 << i & byte != 0))
-			.flatten()
 			.collect();
 		Self { bits, position: 0 }
 	}
@@ -143,6 +122,14 @@ impl Message {
 		let bit = self.bits[self.position];
 		self.position += 1;
 		bit
+	}
+}
+
+fn char_to_byte(char: char) -> u8 {
+	match char {
+		'0'..='9' => char as u8 - 48,
+		'A'..='F' => char as u8 - 55,
+		_ => panic!(),
 	}
 }
 
