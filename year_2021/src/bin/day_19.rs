@@ -17,13 +17,11 @@ fn get_answers(input: &str) -> String {
 	loop {
 		let mut newly_found_scanners = Vec::with_capacity(scanners.len() / 4);
 		for (placed_offset, placed_scanner) in recently_placed_scanners.iter() {
-			for (index, scanner) in scanners.iter().enumerate().filter_map(|(index, scanner)| {
-				if let Some(scanner) = scanner {
-					Some((index, scanner))
-				} else {
-					None
-				}
-			}) {
+			for (index, scanner) in scanners
+				.iter()
+				.enumerate()
+				.filter_map(|(index, scanner)| scanner.as_ref().map(|scanner| (index, scanner)))
+			{
 				if !newly_found_scanners.iter().any(|(_, _, i)| *i == index) {
 					if let Some((orientation, offset)) = placed_scanner.link(scanner) {
 						newly_found_scanners.push((orientation, *placed_offset + offset, index));
