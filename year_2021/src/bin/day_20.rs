@@ -1,27 +1,27 @@
-use std::collections::HashSet;
-
 fn main() {
 	shared::print_answers(20, &[get_answer_1, get_answer_2]);
 }
 
-fn get_answer_1(input: &str) -> u32 {
+fn get_answer_1(input: &str) -> usize {
 	let (key, image) = input.split_once("\r\n\r\n").unwrap();
 	let key = parse_key(key);
-	let mut image = Image::from_str(image);
-	for _ in 0..2 {
+	const ITERATIONS: usize = 2;
+	let mut image = Image::<{ 100 + 2 + ITERATIONS * 2 }>::from_str(image, 100);
+	for _ in 0..ITERATIONS {
 		image.enhance(&key);
 	}
-	image.light_pixels.len() as u32
+	image.count_light()
 }
 
-fn get_answer_2(input: &str) -> u32 {
+fn get_answer_2(input: &str) -> usize {
 	let (key, image) = input.split_once("\r\n\r\n").unwrap();
 	let key = parse_key(key);
-	let mut image = Image::from_str(image);
-	for _ in 0..50 {
+	const ITERATIONS: usize = 50;
+	let mut image = Image::<{ 100 + 2 + ITERATIONS * 2 }>::from_str(image, 100);
+	for _ in 0..ITERATIONS {
 		image.enhance(&key);
 	}
-	image.light_pixels.len() as u32
+	image.count_light()
 }
 
 fn parse_key(str: &str) -> [bool; 512] {
@@ -36,23 +36,24 @@ fn parse_key(str: &str) -> [bool; 512] {
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 struct Point {
-	x: i16,
-	y: i16,
+	x: usize,
+	y: usize,
 }
 
-struct Image {
-	light_pixels: HashSet<Point>,
+struct Image<const SIZE: usize> {
+	light_pixels: Box<[[bool; SIZE]; SIZE]>,
 	inverted: bool,
-	x_start: i16,
-	x_end: i16,
-	y_start: i16,
-	y_end: i16,
+	x_start: usize,
+	x_end: usize,
+	y_start: usize,
+	y_end: usize,
 }
 
-impl Image {
-	fn from_str(str: &str) -> Self {
-		let light_pixels = str
-			.lines()
+impl<const SIZE: usize> Image<SIZE> {
+	fn from_str(str: &str, starting_size: usize) -> Self {
+		let padding = (SIZE - starting_size) / 2;
+		let mut light_pixels = Box::new([[false; SIZE]; SIZE]);
+		str.lines()
 			.enumerate()
 			.flat_map(|(y, line)| {
 				line.as_bytes()
@@ -60,30 +61,28 @@ impl Image {
 					.map(move |byte| (y, byte))
 					.enumerate()
 			})
-			.filter(|(_, (_, &byte))| byte == b'#')
-			.map(|(x, (y, _))| Point {
-				x: x as i16,
-				y: y as i16,
-			})
-			.collect();
+			.for_each(|(x, (y, &byte))| light_pixels[y + padding][x + padding] = byte == b'#');
 		Self {
 			light_pixels,
 			inverted: false,
-			x_start: 0,
-			x_end: 100,
-			y_start: 0,
-			y_end: 100,
+			x_start: padding,
+			x_end: SIZE - padding,
+			y_start: padding,
+			y_end: SIZE - padding,
 		}
+	}
+	fn get(&self, point: &Point) -> bool {
+		self.light_pixels[point.y][point.x]
 	}
 	fn window_around(&self, point: &Point) -> usize {
 		let mut value = 0;
-		for (x_offset, y_offset) in (-1..=1).flat_map(|y| (-1..=1).map(move |x| (x, y))) {
+		for (x_offset, y_offset) in (0..=2).flat_map(|y| (0..=2).map(move |x| (x, y))) {
 			value <<= 1;
 			let offset_point = Point {
-				x: point.x + x_offset,
-				y: point.y + y_offset,
+				x: point.x + x_offset - 1,
+				y: point.y + y_offset - 1,
 			};
-			if self.inverted ^ self.light_pixels.contains(&offset_point) {
+			if self.inverted ^ self.get(&offset_point) {
 				value |= 1;
 			}
 		}
@@ -94,11 +93,21 @@ impl Image {
 		self.x_end += 1;
 		self.y_start -= 1;
 		self.y_end += 1;
-		self.light_pixels = (self.y_start..self.y_end)
+		let mut new_pixels = Box::new([[false; SIZE]; SIZE]);
+		(self.y_start..self.y_end)
 			.flat_map(|y| (self.x_start..self.x_end).map(move |x| Point { x, y }))
-			.filter(|point| !self.inverted ^ key[self.window_around(point)])
-			.collect();
+			.for_each(|point| {
+				new_pixels[point.y][point.x] = !self.inverted ^ key[self.window_around(&point)]
+			});
+		self.light_pixels = new_pixels;
 		self.inverted = !self.inverted;
+	}
+	fn count_light(&self) -> usize {
+		self.light_pixels
+			.iter()
+			.flatten()
+			.filter(|&&light| light)
+			.count()
 	}
 }
 
@@ -108,9 +117,9 @@ mod tests {
 
 	#[test]
 	fn test_window() {
-		let image = Image::from_str("###\n..#\n##.");
+		let image = Image::<5>::from_str("###\n..#\n##.", 3);
 		let window = image.window_around(&Point { x: 1, y: 1 });
-		//println!("{:09b}", window);
+		println!("{:09b}", window);
 		assert_eq!(0b111001110, window);
 	}
 }
