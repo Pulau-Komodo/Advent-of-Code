@@ -2,7 +2,7 @@ fn main() {
 	shared::print_answers(21, &[get_answer_1, get_answer_2]);
 }
 
-fn get_answer_1(input: &str) -> u128 {
+fn get_answer_1(input: &str) -> u64 {
 	let positions = parse_input(input);
 	let mut positions = [positions[0] as u32, positions[1] as u32];
 	let mut scores = [0; 2];
@@ -18,10 +18,10 @@ fn get_answer_1(input: &str) -> u128 {
 			}
 		}
 	}
-	(scores.iter().min().unwrap() * die_rolls) as u128
+	(scores.iter().min().unwrap() * die_rolls) as u64
 }
 
-fn get_answer_2(input: &str) -> u128 {
+fn get_answer_2(input: &str) -> u64 {
 	let positions = parse_input(input);
 	let wins = wins(positions);
 	*wins.iter().max().unwrap()
@@ -50,20 +50,20 @@ fn roll(die_rolls: u32) -> u32 {
 	}
 }
 
-fn wins(positions: [u8; 2]) -> [u128; 2] {
+fn wins(positions: [u8; 2]) -> [u64; 2] {
 	let mut wins = [0, 0];
 	turn(false, 1, positions, [0, 0], &mut wins);
 	wins
 }
 
-const DURAC_ROLLS: [(u128, u8); 7] = [(1, 3), (3, 4), (6, 5), (7, 6), (6, 7), (3, 8), (1, 9)];
+const DURAC_ROLLS: [(u64, u8); 7] = [(1, 3), (3, 4), (6, 5), (7, 6), (6, 7), (3, 8), (1, 9)];
 
 fn turn(
 	player_two_turn: bool,
-	branch_count: u128,
+	branch_count: u64,
 	positions: [u8; 2],
 	scores: [u8; 2],
-	mut wins: &mut [u128; 2],
+	mut wins: &mut [u64; 2],
 ) {
 	for (count, roll) in DURAC_ROLLS {
 		let branch_count = branch_count * count;
