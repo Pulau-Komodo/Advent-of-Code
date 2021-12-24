@@ -13,23 +13,40 @@ pub fn read_file_special(day: u8, addition: &str) -> String {
 	.expect("Could not read file")
 }
 
+/// Prints a line with the passed value, and returns true. For debugging big boolean chains.
+pub fn println<T: std::fmt::Display>(output: T) -> bool {
+	println!("{}", output);
+	true
+}
+
 pub fn print_answers<T: std::fmt::Display>(day: u8, functions: &[fn(&str) -> T]) {
+	let repeat_count: u32 = std::env::args()
+		.nth(1)
+		.map(|arg| arg.parse().ok())
+		.flatten()
+		.unwrap_or(1);
 	let input = read_file(day);
 	let mut now = std::time::Instant::now();
 	if functions.len() == 1 {
+		for _ in 1..repeat_count {
+			functions[0](&input);
+		}
 		println!(
 			"{} ({} μs)",
 			functions[0](&input),
-			now.elapsed().as_micros()
+			now.elapsed().as_micros() / repeat_count as u128
 		);
 		return;
 	}
 	for (index, function) in functions.iter().enumerate() {
+		for _ in 1..repeat_count {
+			function(&input);
+		}
 		println!(
 			"{}: {} ({} μs)",
 			index + 1,
 			function(&input),
-			now.elapsed().as_micros()
+			now.elapsed().as_micros() / repeat_count as u128
 		);
 		now = std::time::Instant::now();
 	}
