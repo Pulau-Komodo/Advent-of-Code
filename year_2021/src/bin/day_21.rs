@@ -23,28 +23,16 @@ fn get_answer_1(input: &str) -> u64 {
 
 fn get_answer_2(input: &str) -> u64 {
 	let positions = parse_input(input);
-	let completions_per_turn = [
-		get_completions_per_turn(positions[0]),
-		get_completions_per_turn(positions[1]),
-	];
-	let wins = get_wins(completions_per_turn);
+	let completions_per_turn = positions.map(get_completions_per_turn);
+	let non_completions_per_turn = completions_per_turn.map(get_non_completions_per_turn);
+	let wins = get_wins(completions_per_turn, non_completions_per_turn);
 	*wins.iter().max().unwrap()
 }
 
-fn get_wins(completions_per_turn: [[u64; 11]; 2]) -> [u64; 2] {
-	let non_completions_per_turn = completions_per_turn.map(|player| {
-		let mut prev = None;
-		player.map(|completions| {
-			if let Some(previous) = prev {
-				let non_completions = previous * 27 - completions;
-				prev = Some(non_completions);
-				non_completions
-			} else {
-				prev = Some(1);
-				1
-			}
-		})
-	});
+fn get_wins(
+	completions_per_turn: [[u64; 11]; 2],
+	non_completions_per_turn: [[u64; 11]; 2],
+) -> [u64; 2] {
 	[
 		completions_per_turn[0]
 			.iter()
@@ -98,6 +86,20 @@ fn get_completions_per_turn(position: u8) -> [u64; 11] {
 	completions_per_turn
 }
 
+fn get_non_completions_per_turn(completions_per_turn: [u64; 11]) -> [u64; 11] {
+	let mut prev = None;
+	completions_per_turn.map(|completions| {
+		if let Some(previous) = prev {
+			let non_completions = previous * 27 - completions;
+			prev = Some(non_completions);
+			non_completions
+		} else {
+			prev = Some(1);
+			1
+		}
+	})
+}
+
 const DURAC_ROLLS: [(u64, u8); 7] = [(1, 3), (3, 4), (6, 5), (7, 6), (6, 7), (3, 8), (1, 9)];
 
 fn do_solo_turn(
@@ -135,11 +137,9 @@ mod tests {
 	#[test]
 	fn sample_input() {
 		let positions = [4 - 1, 8 - 1];
-		let completions_per_turn = [
-			get_completions_per_turn(positions[0]),
-			get_completions_per_turn(positions[1]),
-		];
-		let wins = get_wins(completions_per_turn);
+		let completions_per_turn = positions.map(get_completions_per_turn);
+		let non_completions_per_turn = completions_per_turn.map(get_non_completions_per_turn);
+		let wins = get_wins(completions_per_turn, non_completions_per_turn);
 		assert_eq!(wins, [444356092776315, 341960390180808]);
 	}
 }
