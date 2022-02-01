@@ -29,6 +29,14 @@ fn get_answer_2(input: &str) -> u64 {
 	*wins.iter().max().unwrap()
 }
 
+fn roll(die_rolls: u32) -> u32 {
+	match die_rolls % 100 {
+		98 => 200,
+		99 => 103,
+		n => n * 3 + 6,
+	}
+}
+
 fn get_wins(
 	completions_per_turn: [[u64; 11]; 2],
 	non_completions_per_turn: [[u64; 11]; 2],
@@ -64,26 +72,43 @@ fn parse_input(input: &str) -> [u8; 2] {
 	[player_one - 1, player_two - 1]
 }
 
-fn roll(die_rolls: u32) -> u32 {
-	match die_rolls % 100 {
-		98 => 200,
-		99 => 103,
-		n => n * 3 + 6,
-	}
-}
-
 fn get_completions_per_turn(position: u8) -> [u64; 11] {
 	let mut completions_per_turn = [0; 11];
-	let mut non_completions_per_turn = [0; 11];
 	do_solo_turn(
 		position,
 		0,
 		1,
 		1,
 		&mut completions_per_turn,
-		&mut non_completions_per_turn,
 	);
 	completions_per_turn
+}
+
+const DIRAC_ROLLS: [(u64, u8); 7] = [(1, 3), (3, 4), (6, 5), (7, 6), (6, 7), (3, 8), (1, 9)];
+
+fn do_solo_turn(
+	position: u8,
+	score: u8,
+	turn: u8,
+	branch_count: u64,
+	mut completions_per_turn: &mut [u64; 11],
+) {
+	for (count, roll) in DIRAC_ROLLS {
+		let branch_count = branch_count * count;
+		let position = (position + roll) % 10;
+		let score = score + position + 1;
+		if score >= 21 {
+			completions_per_turn[turn as usize] += branch_count;
+		} else {
+			do_solo_turn(
+				position,
+				score,
+				turn + 1,
+				branch_count,
+				&mut completions_per_turn,
+			);
+		}
+	}
 }
 
 fn get_non_completions_per_turn(completions_per_turn: [u64; 11]) -> [u64; 11] {
@@ -98,36 +123,6 @@ fn get_non_completions_per_turn(completions_per_turn: [u64; 11]) -> [u64; 11] {
 			1
 		}
 	})
-}
-
-const DURAC_ROLLS: [(u64, u8); 7] = [(1, 3), (3, 4), (6, 5), (7, 6), (6, 7), (3, 8), (1, 9)];
-
-fn do_solo_turn(
-	position: u8,
-	score: u8,
-	turn: u8,
-	branch_count: u64,
-	mut completions_per_turn: &mut [u64; 11],
-	mut non_completions_per_turn: &mut [u64; 11],
-) {
-	for (count, roll) in DURAC_ROLLS {
-		let branch_count = branch_count * count;
-		let position = (position + roll) % 10;
-		let score = score + position + 1;
-		if score >= 21 {
-			completions_per_turn[turn as usize] += branch_count;
-		} else {
-			non_completions_per_turn[turn as usize] += branch_count;
-			do_solo_turn(
-				position,
-				score,
-				turn + 1,
-				branch_count,
-				&mut completions_per_turn,
-				&mut non_completions_per_turn,
-			);
-		}
-	}
 }
 
 #[cfg(test)]
