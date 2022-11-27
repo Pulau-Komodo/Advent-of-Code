@@ -3,6 +3,7 @@
 members = [
 	"shared",
 	"year_2015",
+	"year_2016",
 	"year_2020",
 	"year_2021",
 ]
