@@ -22,8 +22,7 @@ pub fn println<T: std::fmt::Display>(output: T) -> bool {
 pub fn print_answers<T: std::fmt::Display>(day: u8, functions: &[fn(&str) -> T]) {
 	let repeat_count: u32 = std::env::args()
 		.nth(1)
-		.map(|arg| arg.parse().ok())
-		.flatten()
+		.and_then(|arg| arg.parse().ok())
 		.unwrap_or(1);
 	let input = read_file(day);
 	let mut now = std::time::Instant::now();
