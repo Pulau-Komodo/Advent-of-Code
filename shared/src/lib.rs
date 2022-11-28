@@ -1,3 +1,7 @@
+mod md5;
+
+pub use md5::md5;
+
 pub fn read_file(day: u8) -> String {
 	let path_adjustment = if cfg!(test) { "." } else { "" };
 	std::fs::read_to_string(format!(".{}/input/{}.txt", path_adjustment, day))
