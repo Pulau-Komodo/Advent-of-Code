@@ -1,6 +1,8 @@
 mod md5;
+mod top;
 
 pub use md5::md5;
+pub use top::IteratorTop;
 
 pub fn read_file(day: u8) -> String {
 	let path_adjustment = if cfg!(test) { "." } else { "" };
