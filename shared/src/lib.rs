@@ -41,18 +41,21 @@ pub fn print_answers<T: std::fmt::Display>(day: u8, functions: &[fn(&str) -> T])
 			functions[0](&input),
 			now.elapsed().as_micros() / repeat_count as u128
 		);
-		return;
-	}
-	for (index, function) in functions.iter().enumerate() {
-		for _ in 1..repeat_count {
-			function(&input);
+	} else {
+		for (index, function) in functions.iter().enumerate() {
+			for _ in 1..repeat_count {
+				function(&input);
+			}
+			println!(
+				"{}: {} ({} μs)",
+				index + 1,
+				function(&input),
+				now.elapsed().as_micros() / repeat_count as u128
+			);
+			now = std::time::Instant::now();
 		}
-		println!(
-			"{}: {} ({} μs)",
-			index + 1,
-			function(&input),
-			now.elapsed().as_micros() / repeat_count as u128
-		);
-		now = std::time::Instant::now();
+	}
+	if repeat_count > 1 {
+		println!("(times averaged over {repeat_count} runs)");
 	}
 }
