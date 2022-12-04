@@ -4,20 +4,20 @@ fn main() {
 	shared::print_answers(4, &[get_answer_1, get_answer_2]);
 }
 
-fn get_answer_1(input: &str) -> u32 {
+fn get_answer_1(input: &str) -> usize {
 	input
 		.lines()
 		.map(AssignmentPair::from_str)
 		.filter(AssignmentPair::one_contains_other)
-		.count() as u32
+		.count()
 }
 
-fn get_answer_2(input: &str) -> u32 {
+fn get_answer_2(input: &str) -> usize {
 	input
 		.lines()
 		.map(AssignmentPair::from_str)
 		.filter(AssignmentPair::overlaps_at_all)
-		.count() as u32
+		.count()
 }
 
 struct AssignmentPair {
@@ -42,7 +42,7 @@ impl AssignmentPair {
 				&& self.sections[1].end() >= self.sections[0].end()
 	}
 	fn overlaps_at_all(&self) -> bool {
-		self.sections[0].contains(self.sections[1].start())
-			|| self.sections[1].contains(self.sections[0].start())
+		self.sections[0].end() >= self.sections[1].start()
+			&& self.sections[1].end() >= self.sections[0].start()
 	}
 }
