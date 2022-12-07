@@ -9,7 +9,13 @@ fn get_answer_1(input: &str) -> u32 {
 	for output in input.lines().skip(1).map(TerminalOutput::from_str) {
 		state.handle_terminal_output(output);
 	}
-	state.get_all_directory_sizes_under(100_000)
+	let mut sum = 0;
+	state.for_each_directory(|directory| {
+		if directory.size <= SMALL_DIRECTORY_THRESHOLD {
+			sum += directory.size
+		}
+	});
+	sum
 }
 
 fn get_answer_2(input: &str) -> u32 {
@@ -17,9 +23,17 @@ fn get_answer_2(input: &str) -> u32 {
 	for output in input.lines().skip(1).map(TerminalOutput::from_str) {
 		state.handle_terminal_output(output);
 	}
-	state.get_smallest_directory_size_under(state.root.size - (DISK_SPACE - SPACE_NEEDED))
+	let threshold = state.root.size - (DISK_SPACE - SPACE_NEEDED);
+	let mut smallest = u32::MAX;
+	state.for_each_directory(|directory| {
+		if directory.size >= threshold {
+			smallest = smallest.min(directory.size)
+		}
+	});
+	smallest
 }
 
+const SMALL_DIRECTORY_THRESHOLD: u32 = 100_000;
 const DISK_SPACE: u32 = 70_000_000;
 const SPACE_NEEDED: u32 = 30_000_000;
 
@@ -52,16 +66,6 @@ impl<'l> TerminalOutput<'l> {
 struct Directory<'l> {
 	directories: HashMap<&'l str, Directory<'l>>,
 	size: u32,
-}
-
-impl<'l> Directory<'l> {
-	fn get_sizes(&self) -> Vec<u32> {
-		self.directories
-			.iter()
-			.flat_map(|(_, dir)| dir.get_sizes())
-			.chain([self.size])
-			.collect()
-	}
 }
 
 #[derive(Default, Debug)]
@@ -103,19 +107,21 @@ impl<'l> State<'l> {
 	fn change_to_parent_directory(&mut self) {
 		self.current_path.pop();
 	}
-	fn get_all_directory_sizes_under(&self, threshold: u32) -> u32 {
-		self.root
-			.get_sizes()
-			.into_iter()
-			.filter(|n| *n < threshold)
-			.sum()
-	}
-	fn get_smallest_directory_size_under(&self, threshold: u32) -> u32 {
-		self.root
-			.get_sizes()
-			.into_iter()
-			.filter(|n| *n > threshold)
-			.min()
-			.unwrap()
+	fn for_each_directory<F>(&self, mut f: F)
+	where
+		F: FnMut(&Directory),
+	{
+		let mut frontier: Vec<_> = self.root.directories.values().collect();
+		loop {
+			let mut new_frontier = Vec::new();
+			for directory in frontier.drain(..) {
+				f(directory);
+				new_frontier.extend(directory.directories.values());
+			}
+			if new_frontier.is_empty() {
+				break;
+			}
+			frontier.append(&mut new_frontier);
+		}
 	}
 }
