@@ -112,8 +112,8 @@ impl<'l> State<'l> {
 		F: FnMut(&Directory),
 	{
 		let mut frontier: Vec<_> = self.root.directories.values().collect();
+		let mut new_frontier = Vec::new();
 		loop {
-			let mut new_frontier = Vec::new();
 			for directory in frontier.drain(..) {
 				f(directory);
 				new_frontier.extend(directory.directories.values());
