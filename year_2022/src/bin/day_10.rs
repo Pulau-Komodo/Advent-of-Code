@@ -3,35 +3,34 @@ fn main() {
 }
 
 fn get_answer_1(input: &str) -> Box<dyn std::fmt::Display> {
-	let mut state = State::new();
-	let mut score = 0;
-	let mut instructions = input.lines().map(Instruction::from_str);
-	for n in 1..=220 {
-		if state.advance_cycle() {
-			state.process_instruction(instructions.next().unwrap_or_default());
-		}
-		if (n - 20) % 40 == 0 {
-			score += state.value * n;
-		}
-	}
+	let score: i32 = input
+		.lines()
+		.map(Instruction::from_str)
+		.crt_processor()
+		.enumerate()
+		.skip(19)
+		.step_by(40)
+		.take(6)
+		.map(|(i, value)| value * (i + 1) as i32)
+		.sum();
 	Box::new(score)
 }
 
 fn get_answer_2(input: &str) -> Box<dyn std::fmt::Display> {
-	let mut state = State::new();
-	let mut instructions = input.lines().map(Instruction::from_str);
-	let mut pixels = [[' '; 40]; 6];
-	for n in 0_usize..240 {
-		if state.advance_cycle() {
-			state.process_instruction(instructions.next().unwrap_or_default());
-		}
-		if (state.value - 1..=state.value + 1).contains(&(n as i32 % 40)) {
-			pixels[n / 40][n % 40] = '█';
-		}
-	}
-	let output: String = pixels
-		.into_iter()
-		.flat_map(|line| ['\n'].into_iter().chain(line))
+	let output: String = input
+		.lines()
+		.map(Instruction::from_str)
+		.crt_processor()
+		.enumerate()
+		.take(240)
+		.flat_map(|(i, value)| {
+			let char = if value.abs_diff(i as i32 % 40) <= 1 {
+				'█'
+			} else {
+				' '
+			};
+			(i % 40 == 0).then_some('\n').into_iter().chain([char])
+		})
 		.collect();
 	Box::new(output)
 }
@@ -54,37 +53,55 @@ impl Instruction {
 	}
 }
 
-struct State {
+struct CrtProcessor<I> {
 	value: i32,
 	processing_for: u8,
 	adding: i32,
+	instructions: I,
 }
 
-impl State {
-	fn new() -> Self {
-		Self {
+impl<I> CrtProcessor<I> {
+	fn new(instructions: I) -> Self {
+		CrtProcessor {
 			value: 1,
 			processing_for: 0,
 			adding: 0,
-		}
-	}
-	fn advance_cycle(&mut self) -> bool {
-		if self.processing_for == 0 {
-			self.value += self.adding;
-			self.adding = 0;
-			true
-		} else {
-			self.processing_for -= 1;
-			false
-		}
-	}
-	fn process_instruction(&mut self, instruction: Instruction) {
-		match instruction {
-			Instruction::Noop => (),
-			Instruction::Add(n) => {
-				self.adding = n;
-				self.processing_for = 1
-			}
+			instructions,
 		}
 	}
 }
+
+impl<I> Iterator for CrtProcessor<I>
+where
+	I: Iterator<Item = Instruction>,
+{
+	type Item = i32;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.processing_for > 0 {
+			self.processing_for -= 1;
+		} else {
+			self.value += self.adding;
+			let instruction = self.instructions.next().unwrap_or_default();
+			match instruction {
+				Instruction::Noop => self.adding = 0,
+				Instruction::Add(n) => {
+					self.adding = n;
+					self.processing_for = 1
+				}
+			}
+		}
+		Some(self.value)
+	}
+}
+
+trait CrtInstructions {
+	fn crt_processor(self) -> CrtProcessor<Self>
+	where
+		Self: Sized,
+	{
+		CrtProcessor::new(self)
+	}
+}
+
+impl<T> CrtInstructions for T where T: Iterator<Item = Instruction> {}
