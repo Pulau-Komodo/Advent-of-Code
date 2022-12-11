@@ -8,10 +8,11 @@ fn get_answer_1(input: &str) -> u64 {
 	let mut monkeys: Vec<_> = input.split("\n\n").map(Monkey::from_str).collect();
 	for _ in 0..20 {
 		for n in 0..monkeys.len() {
-			for (target, mut items) in monkeys[n].inspect::<3>() {
-				items.reverse();
-				monkeys[target].items.extend(items);
+			let mut monkey = std::mem::take(&mut monkeys[n]);
+			for (target, item) in monkey.inspect::<3>() {
+				monkeys[target].items.push(item);
 			}
+			std::mem::swap(&mut monkey, &mut monkeys[n]);
 		}
 	}
 	monkeys
@@ -30,13 +31,11 @@ fn get_answer_2(input: &str) -> u64 {
 		.product::<u64>();
 	for _ in 0..10000 {
 		for n in 0..monkeys.len() {
-			for (target, mut items) in monkeys[n].inspect::<1>() {
-				for item in &mut items {
-					*item %= modulus;
-				}
-				items.reverse();
-				monkeys[target].items.extend(items);
+			let mut monkey = std::mem::take(&mut monkeys[n]);
+			for (target, item) in monkey.inspect::<1>() {
+				monkeys[target].items.push(item % modulus);
 			}
+			std::mem::swap(&mut monkey, &mut monkeys[n]);
 		}
 	}
 	monkeys
@@ -47,6 +46,7 @@ fn get_answer_2(input: &str) -> u64 {
 		.product()
 }
 
+#[derive(Default)]
 struct Monkey {
 	items: Vec<u64>,
 	operation: Operation,
@@ -74,26 +74,27 @@ impl Monkey {
 			inspections: 0,
 		}
 	}
-	fn inspect<const DIVISOR: u64>(&mut self) -> [(usize, Vec<u64>); 2] {
+	fn inspect<const DIVISOR: u64>(&mut self) -> impl Iterator<Item = (usize, u64)> + '_ {
 		for item in &mut self.items {
 			*item = self.operation.apply(*item);
 			*item /= DIVISOR;
 			self.inspections += 1;
 		}
-		let (true_items, false_items) = self
-			.items
-			.drain(..)
-			.partition(|n| n % self.test_divisible_by == 0);
-		[
-			(self.true_target, true_items),
-			(self.false_target, false_items),
-		]
+		self.items.drain(..).map(|n| {
+			if n % self.test_divisible_by == 0 {
+				(self.true_target, n)
+			} else {
+				(self.false_target, n)
+			}
+		})
 	}
 }
 
+#[derive(Default)]
 enum Operation {
 	Add(u64),
 	Multiply(u64),
+	#[default]
 	Square,
 }
 
