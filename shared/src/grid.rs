@@ -1,0 +1,143 @@
+use std::ops::Index;
+
+use crate::{FlatPoint, Point};
+
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
+pub struct Grid<T> {
+	cells: Vec<T>,
+	width: usize,
+}
+
+impl<T> Grid<T> {
+	pub fn new(cells: impl IntoIterator<Item = impl IntoIterator<Item = T>>) -> Self {
+		let mut height = 0;
+		let cells: Vec<_> = cells
+			.into_iter()
+			.flat_map(|inner| {
+				height += 1;
+				inner
+			})
+			.collect();
+		let width = cells.len() / height;
+		Self { cells, width }
+	}
+	/// # Panics
+	/// Panics if the point is out of bounds.
+	pub fn get_flat_point_ref(&self, point: FlatPoint) -> &T {
+		&self.cells[point.index]
+	}
+	/// # Panics
+	/// Panics if the point is out of bounds.
+	pub fn get_flat_point_mut(&mut self, point: FlatPoint) -> &mut T {
+		&mut self.cells[point.index]
+	}
+	/// # Panics
+	/// Panics or gives wrong results if the point is out of bounds.
+	pub fn get_point_ref<P: Into<usize>>(&self, point: Point<P>) -> &T {
+		self.get_flat_point_ref(FlatPoint::from_point(point, self.width))
+	}
+	/// # Panics
+	/// Panics or gives wrong results if the point is out of bounds.
+	pub fn get_point_mut<P: Into<usize>>(&mut self, point: Point<P>) -> &mut T {
+		self.get_flat_point_mut(FlatPoint::from_point(point, self.width))
+	}
+	pub fn width(&self) -> usize {
+		self.width
+	}
+	pub fn size(&self) -> usize {
+		self.cells.len()
+	}
+	pub fn iter(&self) -> impl Iterator<Item = &T> {
+		self.cells.iter()
+	}
+	pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
+		self.cells.iter_mut()
+	}
+}
+
+impl<T: Clone> Grid<T> {
+	pub fn with_margin(
+		cells: impl IntoIterator<Item = impl IntoIterator<Item = T>>,
+		filler: T,
+	) -> Self {
+		let mut height = 0;
+		let temp_cells: Vec<_> = cells
+			.into_iter()
+			.flat_map(|inner| {
+				height += 1;
+				[filler.clone()]
+					.into_iter()
+					.chain(inner)
+					.chain([filler.clone()])
+			})
+			.collect();
+		let width = temp_cells.len() / height;
+		let mut cells = Vec::with_capacity(temp_cells.len() + width * 2);
+		for _ in 0..width {
+			cells.push(filler.clone());
+		}
+		cells.extend(temp_cells);
+		for _ in 0..width {
+			cells.push(filler.clone());
+		}
+		Self { cells, width }
+	}
+	/// # Panics
+	/// Panics if the point is out of bounds.
+	pub fn get_flat_point(&self, point: FlatPoint) -> T {
+		self.cells[point.index].clone()
+	}
+	/// # Panics
+	/// Panics or gives wrong results if the point is out of bounds.
+	pub fn get_point<P: Into<usize>>(&self, point: Point<P>) -> T {
+		self.get_flat_point(FlatPoint::from_point(point, self.width))
+	}
+}
+
+impl<T, P: Into<usize>> Index<Point<P>> for Grid<T> {
+	type Output = T;
+	fn index(&self, index: Point<P>) -> &Self::Output {
+		self.get_point_ref(index)
+	}
+}
+
+impl<T> Index<FlatPoint> for Grid<T> {
+	type Output = T;
+	fn index(&self, index: FlatPoint) -> &Self::Output {
+		self.get_flat_point_ref(index)
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn grid_construction() {
+		let text = "123\n456\n789\nabc";
+		let grid = Grid::new(text.lines().map(|line| line.chars()));
+		assert_eq!(
+			grid.cells,
+			Vec::from(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c'])
+		);
+		assert_eq!(grid.width, 3);
+	}
+	#[test]
+	fn grid_margin() {
+		let grid = Grid::with_margin([['A', 'B'], ['C', 'D']], ' ');
+		assert_eq!(
+			grid.cells,
+			Vec::from([
+				' ', ' ', ' ', ' ', ' ', 'A', 'B', ' ', ' ', 'C', 'D', ' ', ' ', ' ', ' ', ' '
+			])
+		);
+		assert_eq!(grid.width, 4);
+	}
+	#[test]
+	fn cell_access() {
+		let grid = Grid::with_margin([['A', 'B'], ['C', 'D']], ' ');
+		assert_eq!(grid[FlatPoint { index: 5 }], 'A');
+		assert_eq!(grid[Point::<usize> { x: 1, y: 1 }], 'A');
+		assert_eq!(grid.get_point(Point::<usize> { x: 1, y: 1 }), 'A');
+	}
+}
