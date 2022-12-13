@@ -4,6 +4,8 @@ use std::{
 	ops::{Add, Sub},
 };
 
+use crate::internal::one;
+
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct Point<T> {
 	pub x: T,
@@ -113,7 +115,7 @@ impl FlatPoint {
 		Self { index }
 	}
 	/// Makes a `FlatPoint` into a `Point`, assuming the given `grid_width`.
-	/// 
+	///
 	/// `(0, 0)` will be index 0, and rows (`Point`s that share a `y`) were kept sequential.
 	pub fn into_point<T: From<usize>>(self, grid_width: usize) -> Point<T> {
 		let x = self.index % grid_width;
@@ -163,11 +165,6 @@ impl FlatPoint {
 	}
 }
 
-#[inline]
-fn one<T: Product>() -> T {
-	None::<T>.into_iter().product()
-}
-
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -197,14 +194,18 @@ mod tests {
 	fn flat_neighbours() {
 		let flat_point = FlatPoint::from_point(POINT, GRID[0].len());
 		let flat_grid: Vec<_> = GRID.iter().flatten().collect();
-		let neighbours = flat_point.neighbours(GRID[0].len()).map(|point| *flat_grid[point.index]);
+		let neighbours = flat_point
+			.neighbours(GRID[0].len())
+			.map(|point| *flat_grid[point.index]);
 		assert_eq!(neighbours, [1, 2, 3, 4, 5, 6, 7, 8]);
 	}
 	#[test]
 	fn flat_orthogonal_neighbours() {
 		let flat_point = FlatPoint::from_point(POINT, GRID[0].len());
 		let flat_grid: Vec<_> = GRID.iter().flatten().collect();
-		let neighbours = flat_point.orthogonal_neighbours(GRID[0].len()).map(|point| *flat_grid[point.index]);
+		let neighbours = flat_point
+			.orthogonal_neighbours(GRID[0].len())
+			.map(|point| *flat_grid[point.index]);
 		assert_eq!(neighbours, [2, 4, 5, 7]);
 	}
 }
