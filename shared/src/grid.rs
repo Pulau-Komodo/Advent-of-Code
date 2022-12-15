@@ -1,4 +1,7 @@
-use std::ops::Index;
+use std::{
+	fmt::{Debug, Display},
+	ops::{Index, IndexMut},
+};
 
 use crate::{FlatPoint, Point};
 
@@ -56,6 +59,13 @@ impl<T> Grid<T> {
 }
 
 impl<T: Clone> Grid<T> {
+	pub fn empty(width: usize, height: usize, filler: T) -> Self {
+		let mut cells = Vec::with_capacity(width * height);
+		for _ in 0..width * height {
+			cells.push(filler.clone());
+		}
+		Self { cells, width }
+	}
 	pub fn with_margin(
 		cells: impl IntoIterator<Item = impl IntoIterator<Item = T>>,
 		filler: T,
@@ -92,6 +102,19 @@ impl<T: Clone> Grid<T> {
 	pub fn get_point<P: Into<usize>>(&self, point: Point<P>) -> T {
 		self.get_flat_point(FlatPoint::from_point(point, self.width))
 	}
+	pub fn print_with<F, R>(&self, conversion: F)
+	where
+		F: Fn(&T) -> R,
+		R: Display,
+	{
+		for (i, cell) in self.iter().enumerate() {
+			if (i + 1) % self.width == 0 {
+				println!("{}", conversion(cell));
+			} else {
+				print!("{}", conversion(cell));
+			}
+		}
+	}
 }
 
 impl<T, P: Into<usize>> Index<Point<P>> for Grid<T> {
@@ -101,10 +124,22 @@ impl<T, P: Into<usize>> Index<Point<P>> for Grid<T> {
 	}
 }
 
+impl<T, P: Into<usize>> IndexMut<Point<P>> for Grid<T> {
+	fn index_mut(&mut self, index: Point<P>) -> &mut Self::Output {
+		self.get_point_mut(index)
+	}
+}
+
 impl<T> Index<FlatPoint> for Grid<T> {
 	type Output = T;
 	fn index(&self, index: FlatPoint) -> &Self::Output {
 		self.get_flat_point_ref(index)
+	}
+}
+
+impl<T> IndexMut<FlatPoint> for Grid<T> {
+	fn index_mut(&mut self, index: FlatPoint) -> &mut Self::Output {
+		self.get_flat_point_mut(index)
 	}
 }
 
