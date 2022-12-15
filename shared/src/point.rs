@@ -2,6 +2,7 @@ use std::{
 	fmt::Debug,
 	iter::Product,
 	ops::{Add, Sub},
+	str::FromStr,
 };
 
 use crate::internal::one;
@@ -68,6 +69,40 @@ where
 	}
 }
 
+impl<T> Point<T>
+where
+	T: Ord + Sub<Output = T> + Copy,
+{
+	pub fn abs_diff(self, other: Self) -> Offset<T> {
+		let x = if self.x > other.x {
+			self.x - other.x
+		} else {
+			other.x - self.x
+		};
+		let y = if self.y > other.y {
+			self.y - other.y
+		} else {
+			other.y - self.y
+		};
+		Offset { x, y }
+	}
+}
+
+impl<T> Point<T>
+where
+	T: FromStr,
+	<T as FromStr>::Err: Debug,
+{
+	/// Parses the string as a `Point`, assuming an `x,y` input format.
+	pub fn from_comma_separated(s: &str) -> Self {
+		let (x, y) = s.split_once(',').expect("No comma in string.");
+		Point {
+			x: x.parse().expect("Could not parse x."),
+			y: y.parse().expect("Could not parse y."),
+		}
+	}
+}
+
 impl<T> Add<Offset<T>> for Point<T>
 where
 	T: Add<Output = T>,
@@ -77,6 +112,19 @@ where
 		Self {
 			x: self.x + rhs.x,
 			y: self.y + rhs.y,
+		}
+	}
+}
+
+impl<T> Sub<Offset<T>> for Point<T>
+where
+	T: Sub<Output = T>,
+{
+	type Output = Point<T>;
+	fn sub(self, rhs: Offset<T>) -> Self::Output {
+		Point {
+			x: self.x - rhs.x,
+			y: self.y - rhs.y,
 		}
 	}
 }
@@ -94,10 +142,19 @@ where
 	}
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct Offset<T> {
 	pub x: T,
 	pub y: T,
+}
+
+impl<T> Offset<T>
+where
+	T: Add<Output = T> + Copy,
+{
+	pub fn component_sum(self) -> T {
+		self.x + self.y
+	}
 }
 
 /// A point the way it is represented on a flattened grid, i.e. a grid that was made into a single list of cells.
