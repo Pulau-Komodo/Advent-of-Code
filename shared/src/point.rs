@@ -168,8 +168,17 @@ impl FlatPoint {
 	///
 	/// `(0, 0)` will be index 0, and rows (`Point`s that share a `y`) are kept sequential.
 	pub fn from_point<T: Into<usize>>(point: Point<T>, grid_width: usize) -> Self {
-		let index = point.y.into() * grid_width + point.x.into();
-		Self { index }
+		if cfg!(debug_assertions) {
+			let x: usize = point.x.into();
+			if x >= grid_width {
+				panic!("x is {x} but grid width is {grid_width}");
+			}
+			let index = point.y.into() * grid_width + x;
+			Self { index }
+		} else {
+			let index = point.y.into() * grid_width + point.x.into();
+			Self { index }
+		}
 	}
 	/// Makes a `FlatPoint` into a `Point`, assuming the given `grid_width`.
 	///
