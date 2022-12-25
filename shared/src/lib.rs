@@ -1,6 +1,7 @@
 mod grid;
 mod internal;
 mod io;
+mod math;
 mod md5;
 mod parsing;
 mod point;
@@ -10,6 +11,7 @@ mod vectors;
 
 pub use grid::Grid;
 pub use io::{print_answers, read_file, read_file_special};
+pub use math::{div_ceil, wrapping_add, wrapping_sub};
 pub use md5::md5;
 pub use parsing::{bytes_to_integer, split_number};
 pub use point::{FlatPoint, Offset, Point};
