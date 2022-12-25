@@ -11,7 +11,7 @@ mod vectors;
 pub use grid::Grid;
 pub use io::{print_answers, read_file, read_file_special};
 pub use md5::md5;
-pub use parsing::bytes_to_integer;
+pub use parsing::{bytes_to_integer, split_number};
 pub use point::{FlatPoint, Offset, Point};
 pub use range_set::RangeSet;
 pub use top::IteratorTop;
