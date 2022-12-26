@@ -6,13 +6,14 @@ fn main() {
 
 fn get_answer_1(input: &str) -> u64 {
 	let mut monkeys: Vec<_> = input.split("\n\n").map(Monkey::from_str).collect();
+	let mut monkey = Monkey::default();
 	for _ in 0..20 {
 		for n in 0..monkeys.len() {
-			let mut monkey = std::mem::take(&mut monkeys[n]);
+			std::mem::swap(&mut monkeys[n], &mut monkey);
 			for (target, item) in monkey.inspect::<3>() {
 				monkeys[target].items.push(item);
 			}
-			std::mem::swap(&mut monkey, &mut monkeys[n]);
+			std::mem::swap(&mut monkeys[n], &mut monkey);
 		}
 	}
 	monkeys
@@ -25,17 +26,18 @@ fn get_answer_1(input: &str) -> u64 {
 
 fn get_answer_2(input: &str) -> u64 {
 	let mut monkeys: Vec<_> = input.split("\n\n").map(Monkey::from_str).collect();
+	let mut monkey = Monkey::default();
 	let modulus = monkeys
 		.iter()
 		.map(|monkey| monkey.test_divisible_by)
 		.product::<u64>();
 	for _ in 0..10000 {
 		for n in 0..monkeys.len() {
-			let mut monkey = std::mem::take(&mut monkeys[n]);
+			std::mem::swap(&mut monkeys[n], &mut monkey);
 			for (target, item) in monkey.inspect::<1>() {
 				monkeys[target].items.push(item % modulus);
 			}
-			std::mem::swap(&mut monkey, &mut monkeys[n]);
+			std::mem::swap(&mut monkeys[n], &mut monkey);
 		}
 	}
 	monkeys
