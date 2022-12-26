@@ -19,24 +19,21 @@ fn get_answer_1(input: &str) -> usize {
 }
 
 fn get_answer_2(input: &str) -> usize {
-	let mut list: Vec<_> = input
+	let mut divider_indices = [1, 2];
+	let divider_packets = ["[[2]]", "[[6]]"].map(Value::from_str);
+	for packet in input
 		.split('\n')
 		.filter(|line| !line.is_empty())
 		.map(Value::from_str)
-		.zip([false].into_iter().cycle())
-		.collect();
-	let added_packets = ["[[2]]", "[[6]]"];
-	list.extend(
-		added_packets
-			.into_iter()
-			.map(Value::from_str)
-			.zip([true].into_iter().cycle()),
-	);
-	list.sort_unstable_by(|(a, _), (b, _)| a.cmp(b));
-	list.iter()
-		.enumerate()
-		.filter_map(|(index, (_packet, is_divider))| is_divider.then_some(index + 1))
-		.product()
+	{
+		if packet < divider_packets[1] {
+			divider_indices[1] += 1;
+			if packet < divider_packets[0] {
+				divider_indices[0] += 1;
+			}
+		}
+	}
+	divider_indices.into_iter().product()
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -57,7 +54,7 @@ impl Value {
 			return Self::Integer(bytes_to_integer(bytes));
 		}
 		let mut open_brackets: u8 = 1;
-		let list = bytes[1..bytes.len() - 1]
+		let list: Vec<_> = bytes[1..bytes.len() - 1]
 			.split(|&byte| {
 				if byte == b',' && open_brackets == 1 {
 					return true;
@@ -71,7 +68,11 @@ impl Value {
 			})
 			.map(Self::from_bytes)
 			.collect();
-		Self::List(list)
+		if list.len() == 1 && matches!(list.first(), Some(Self::Integer(_))) {
+			list.into_iter().next().unwrap()
+		} else {
+			Self::List(list)
+		}
 	}
 }
 
