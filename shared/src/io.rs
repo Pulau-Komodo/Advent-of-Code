@@ -1,3 +1,5 @@
+use std::{fmt::Display, hint::black_box};
+
 pub fn read_file(day: u8) -> String {
 	let path_adjustment = if cfg!(test) { "." } else { "" };
 	std::fs::read_to_string(format!(".{}/input/{}.txt", path_adjustment, day))
@@ -13,35 +15,47 @@ pub fn read_file_special(day: u8, addition: &str) -> String {
 	.expect("Could not read file")
 }
 
-pub fn print_answers<T: std::fmt::Display>(day: u8, functions: &[fn(&str) -> T]) {
+pub fn print_answers<T>(day: u8, solvers: &'static [fn(&str) -> T])
+where
+	T: Display,
+{
+	if solvers.len() == 1 {
+		print_labelled_answers(day, solvers.iter().map(|solver| ("", *solver)));
+	} else {
+		print_labelled_answers(
+			day,
+			solvers
+				.iter()
+				.enumerate()
+				.map(|(index, solver)| (index + 1, *solver)),
+		);
+	}
+}
+
+pub fn print_labelled_answers<T, N, I>(day: u8, solvers: I)
+where
+	T: Display + 'static,
+	N: Display,
+	I: IntoIterator<Item = (N, fn(&str) -> T)>,
+{
 	let repeat_count: u32 = std::env::args()
 		.nth(1)
 		.and_then(|arg| arg.parse().ok())
 		.unwrap_or(1);
 	let input = read_file(day);
 	let mut now = std::time::Instant::now();
-	if functions.len() == 1 {
+	for (name, function) in solvers {
 		for _ in 1..repeat_count {
-			functions[0](&input);
+			black_box(function(&input));
 		}
-		println!(
-			"{} ({} μs)",
-			functions[0](&input),
-			now.elapsed().as_micros() / repeat_count as u128
-		);
-	} else {
-		for (index, function) in functions.iter().enumerate() {
-			for _ in 1..repeat_count {
-				function(&input);
-			}
-			println!(
-				"{}: {} ({} μs)",
-				index + 1,
-				function(&input),
-				now.elapsed().as_micros() / repeat_count as u128
-			);
-			now = std::time::Instant::now();
+		let result = function(&input);
+		let elapsed = now.elapsed().as_micros() / repeat_count as u128;
+		if name.to_string().is_empty() {
+			println!("{result} ({elapsed} μs)");
+		} else {
+			println!("{name}: {result} ({elapsed} μs)");
 		}
+		now = std::time::Instant::now();
 	}
 	if repeat_count > 1 {
 		println!("(times averaged over {repeat_count} runs)");
