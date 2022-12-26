@@ -83,11 +83,11 @@ where
 		} else {
 			self.value += self.adding;
 			let instruction = self.instructions.next().unwrap_or_default();
-			match instruction {
-				Instruction::Noop => self.adding = 0,
+			self.adding = match instruction {
+				Instruction::Noop => 0,
 				Instruction::Add(n) => {
-					self.adding = n;
-					self.processing_for = 1
+					self.processing_for = 1;
+					n
 				}
 			}
 		}
