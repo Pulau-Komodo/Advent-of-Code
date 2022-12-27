@@ -22,7 +22,7 @@ impl GameState {
 					if count > starting_cups.len() as u32 {
 						index as u32 + 2
 					} else {
-						*starting_cups.get(0).unwrap()
+						starting_cups[0]
 					}
 				});
 			cups.insert(value, next_cup);
@@ -30,7 +30,7 @@ impl GameState {
 		if count > starting_cups.len() as u32 {
 			for index in 10..count + 1 {
 				let next_cup = if index + 1 > count {
-					*starting_cups.get(0).unwrap()
+					starting_cups[0]
 				} else {
 					index + 1
 				};
@@ -39,7 +39,7 @@ impl GameState {
 		}
 		GameState {
 			cups,
-			current_cup: *starting_cups.get(0).unwrap(),
+			current_cup: starting_cups[0],
 		}
 	}
 	fn advance(&mut self) {

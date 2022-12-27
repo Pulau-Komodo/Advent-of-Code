@@ -72,7 +72,7 @@ fn part_1(input: &str) -> u64 {
 			}
 		}
 	}
-	values.iter().map(|(_location, value)| value).sum::<u64>()
+	values.values().sum()
 }
 
 enum InstructionV2 {
@@ -138,7 +138,7 @@ fn part_2(input: &str) -> u64 {
 			}
 		}
 	}
-	values.iter().map(|(_location, value)| value).sum::<u64>()
+	values.values().sum()
 }
 
 fn get_answers(input: &str) -> String {

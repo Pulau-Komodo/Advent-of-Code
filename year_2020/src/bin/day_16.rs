@@ -91,11 +91,11 @@ fn get_answers(input: &str) -> String {
 				}
 			}
 			if matching_columns.len() == 1 {
-				let column = matching_columns.get(0).unwrap();
-				unsettled_columns.remove(column);
+				let column = matching_columns[0];
+				unsettled_columns.remove(&column);
 				unsettled_rules.remove(index);
 				//println!("Found rule: {}", rule.name);
-				settled_rules.insert(*column, rule);
+				settled_rules.insert(column, rule);
 				break;
 			} else if matching_columns.is_empty() {
 				panic!();

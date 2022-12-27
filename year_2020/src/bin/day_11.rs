@@ -54,8 +54,7 @@ fn update_seat(seat: &Seat, seat_position: (u16, u16), seat_state: &[Vec<Space>]
 			}
 			let nearby_space = seat_state
 				.get(y as usize)
-				.map(|row| row.get(x as usize))
-				.flatten();
+				.and_then(|row| row.get(x as usize));
 			match (seat, nearby_space, occupied_count) {
 				(Seat::Empty, Some(Space::Seat(Seat::Occupied)), _)
 				| (Seat::Occupied, Some(Space::Seat(Seat::Occupied)), 3) => return Seat::Empty,
@@ -101,8 +100,7 @@ fn is_direction_occupied(
 		y += direction.1;
 		match seat_state
 			.get(y as usize)
-			.map(|row| row.get(x as usize))
-			.flatten()
+			.and_then(|row| row.get(x as usize))
 		{
 			None | Some(Space::Seat(Seat::Empty)) => return false,
 			Some(Space::Seat(Seat::Occupied)) => return true,

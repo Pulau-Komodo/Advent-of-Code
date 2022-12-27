@@ -18,7 +18,7 @@ fn parse_bag_rule(rule: &str) -> (&str, Vec<&str>) {
 	}
 	let mut contents: Vec<&str> = Vec::new();
 	for item in rest.split(", ") {
-		let (_number, rest) = item.split_once(" ").unwrap();
+		let (_number, rest) = item.split_once(' ').unwrap();
 		let (bag, _) = rest.split_once(" bag").unwrap();
 		contents.push(bag);
 	}
@@ -68,7 +68,7 @@ fn parse_bag_rule_b(rule: &str) -> (&str, Vec<(u32, &str)>) {
 	}
 	let mut contents: Vec<(u32, &str)> = Vec::new();
 	for item in rest.split(", ") {
-		let (number, rest) = item.split_once(" ").unwrap();
+		let (number, rest) = item.split_once(' ').unwrap();
 		let (bag, _) = rest.split_once(" bag").unwrap();
 		contents.push((number.parse::<u32>().unwrap(), bag));
 	}

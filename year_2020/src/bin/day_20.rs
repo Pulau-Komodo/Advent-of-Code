@@ -310,7 +310,7 @@ impl SeaMonster {
 		let coordinates = str
 			.lines()
 			.enumerate()
-			.map(|(y, line)| {
+			.flat_map(|(y, line)| {
 				line.chars()
 					.enumerate()
 					.filter_map(move |(x, char)| match char {
@@ -318,7 +318,6 @@ impl SeaMonster {
 						_ => None,
 					})
 			})
-			.flatten()
 			.collect();
 		let width = str.lines().next().unwrap().chars().count();
 		let height = str.lines().count();
