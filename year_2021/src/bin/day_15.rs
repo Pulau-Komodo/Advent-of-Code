@@ -51,8 +51,7 @@ impl<const SIZE: usize> NavigationGrid<SIZE> {
 		for (x, (y, char)) in str
 			.lines()
 			.enumerate()
-			.map(|(y, line)| line.chars().map(move |char| (y, char)).enumerate())
-			.flatten()
+			.flat_map(|(y, line)| line.chars().map(move |char| (y, char)).enumerate())
 		{
 			let num = char as u8 - 48; // Parse as digit
 			risk_grid[y][x] = num;
@@ -67,14 +66,10 @@ impl<const SIZE: usize> NavigationGrid<SIZE> {
 	fn expand(&mut self, multiplier: usize) {
 		let factor = SIZE / multiplier;
 		for (meta_x, meta_y) in (0..multiplier)
-			.map(|y| (0..multiplier).map(move |x| (x, y)))
-			.flatten()
+			.flat_map(|y| (0..multiplier).map(move |x| (x, y)))
 			.filter(|&coords| coords != (0, 0))
 		{
-			for point in (0..factor)
-				.map(|y| (0..factor).map(move |x| Point { x, y }))
-				.flatten()
-			{
+			for point in (0..factor).flat_map(|y| (0..factor).map(move |x| Point { x, y })) {
 				let offset_point = Point {
 					x: point.x + meta_x * factor,
 					y: point.y + meta_y * factor,

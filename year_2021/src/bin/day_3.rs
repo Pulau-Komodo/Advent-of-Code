@@ -46,12 +46,9 @@ fn find_rating(report: &[u16], most: bool) -> u16 {
 	for i in (0..12).rev() {
 		let most_common = most_common_in_pos(&filtered_report, i);
 		let target = most == most_common;
-		filtered_report = filtered_report
-			.into_iter()
-			.filter(|reading| (1 << i & reading != 0) == target)
-			.collect();
+		filtered_report.retain(|reading| (1 << i & reading != 0) == target);
 		if filtered_report.len() == 1 {
-			return *filtered_report.get(0).unwrap();
+			return filtered_report[0];
 		}
 	}
 	panic!("Did not found a unique answer");

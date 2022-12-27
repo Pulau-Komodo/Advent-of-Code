@@ -49,7 +49,7 @@ fn parse_input(input: &str) -> Vec<Vec<Cave>> {
 	let mut links: Vec<Vec<Cave>> = Vec::with_capacity(capacity * 2);
 	links.push(Vec::new());
 	for line in input.lines() {
-		let (first, second) = line.split_once("-").unwrap();
+		let (first, second) = line.split_once('-').unwrap();
 		let first_cave = Cave::from_str_with_index_map(first, &mut caves);
 		let second_cave = Cave::from_str_with_index_map(second, &mut caves);
 		for (source, destination) in std::iter::once((first_cave, second_cave))

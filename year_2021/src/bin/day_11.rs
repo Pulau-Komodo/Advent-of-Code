@@ -28,8 +28,7 @@ impl NeighbouringPoints {
 		let mut nearby = [None; 8];
 		let offset_range = range.start + 1..range.end + 1;
 		(0..3)
-			.map(|y_offset| (0..3).map(move |x_offset| (x_offset, y_offset)))
-			.flatten()
+			.flat_map(|y_offset| (0..3).map(move |x_offset| (x_offset, y_offset)))
 			.filter_map(|(x_offset, y_offset)| {
 				if offset_range.contains(&(point.y + y_offset))
 					&& offset_range.contains(&(point.x + x_offset))
@@ -75,8 +74,7 @@ impl OctopusGrid {
 		for (x, (y, char)) in str
 			.lines()
 			.enumerate()
-			.map(|(y, line)| line.chars().map(move |char| (y, char)).enumerate())
-			.flatten()
+			.flat_map(|(y, line)| line.chars().map(move |char| (y, char)).enumerate())
 		{
 			let num = char as u8 - 48; // Parse as digit
 			grid[y][x] = num;
@@ -90,16 +88,14 @@ impl OctopusGrid {
 	}
 	fn increment_all(&mut self) {
 		(0..10)
-			.map(|y| (0..10).map(move |x| Point { x, y }))
-			.flatten()
+			.flat_map(|y| (0..10).map(move |x| Point { x, y }))
 			.for_each(|point| self.grid[point.y][point.x] += 1)
 	}
 	fn trigger_flashes(&mut self) -> u32 {
 		let mut flash_count = 0;
 		loop {
 			let new_flashes: u32 = (0..10)
-				.map(|y| (0..10).map(move |x| Point { x, y }))
-				.flatten()
+				.flat_map(|y| (0..10).map(move |x| Point { x, y }))
 				.filter(|&point| {
 					let value = &mut self.grid[point.y][point.x];
 					if *value > 9 {

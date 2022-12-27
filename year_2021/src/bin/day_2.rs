@@ -43,7 +43,7 @@ fn parse_input(input: &str) -> impl Iterator<Item = Command> + '_ {
 }
 
 fn parse_line(line: &str) -> Command {
-	let (direction, amount) = line.split_once(" ").unwrap();
+	let (direction, amount) = line.split_once(' ').unwrap();
 	let amount = amount.parse().unwrap();
 	match direction {
 		"forward" => Command::Forward(amount),

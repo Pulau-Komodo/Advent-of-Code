@@ -29,8 +29,7 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 		for (x, (y, char)) in str
 			.lines()
 			.enumerate()
-			.map(|(y, line)| line.chars().map(move |char| (y, char)).enumerate())
-			.flatten()
+			.flat_map(|(y, line)| line.chars().map(move |char| (y, char)).enumerate())
 		{
 			let num = char as u8 - 48; // Parse as digit
 			map[y][x] = num;
@@ -46,8 +45,7 @@ impl<const SIZE: usize> HeightMap<SIZE> {
 	}
 	fn local_minima(&self) -> impl Iterator<Item = Point> + '_ {
 		(0..SIZE)
-			.map(|y| (0..SIZE).map(move |x| Point { x, y }))
-			.flatten()
+			.flat_map(|y| (0..SIZE).map(move |x| Point { x, y }))
 			.filter(move |&point| self.is_local_minimum(point))
 	}
 	fn sum_risk_levels(&self) -> u32 {

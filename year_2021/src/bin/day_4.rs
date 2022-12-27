@@ -59,7 +59,7 @@ impl BingoBoard {
 	/// Mark a number and return whether the board had that number
 	fn mark_number(&mut self, draw: u8) -> bool {
 		let mut had_number = false;
-		for number in self.rows.iter_mut().map(|row| row.iter_mut()).flatten() {
+		for number in self.rows.iter_mut().flat_map(|row| row.iter_mut()) {
 			if *number == Some(draw) {
 				*number = None;
 				had_number = true;
@@ -67,12 +67,7 @@ impl BingoBoard {
 			}
 		}
 		if had_number {
-			for number in self
-				.columns
-				.iter_mut()
-				.map(|column| column.iter_mut())
-				.flatten()
-			{
+			for number in self.columns.iter_mut().flat_map(|column| column.iter_mut()) {
 				if *number == Some(draw) {
 					*number = None;
 					break;
@@ -85,13 +80,12 @@ impl BingoBoard {
 		self.rows
 			.iter()
 			.chain(self.columns.iter())
-			.any(|&set| set.iter().all(|&number| number == None))
+			.any(|&set| set.iter().all(|&number| number.is_none()))
 	}
 	fn score(&self) -> u16 {
 		self.rows
 			.iter()
-			.map(|row| row.iter())
-			.flatten()
+			.flat_map(|row| row.iter())
 			.filter_map(|&number| number.map(|value| value as u16))
 			.sum()
 	}

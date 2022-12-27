@@ -74,13 +74,7 @@ fn parse_input(input: &str) -> [u8; 2] {
 
 fn get_completions_per_turn(position: u8) -> [u64; 11] {
 	let mut completions_per_turn = [0; 11];
-	do_solo_turn(
-		position,
-		0,
-		1,
-		1,
-		&mut completions_per_turn,
-	);
+	do_solo_turn(position, 0, 1, 1, &mut completions_per_turn);
 	completions_per_turn
 }
 
@@ -91,7 +85,7 @@ fn do_solo_turn(
 	score: u8,
 	turn: u8,
 	branch_count: u64,
-	mut completions_per_turn: &mut [u64; 11],
+	completions_per_turn: &mut [u64; 11],
 ) {
 	for (count, roll) in DIRAC_ROLLS {
 		let branch_count = branch_count * count;
@@ -105,7 +99,7 @@ fn do_solo_turn(
 				score,
 				turn + 1,
 				branch_count,
-				&mut completions_per_turn,
+				completions_per_turn,
 			);
 		}
 	}
