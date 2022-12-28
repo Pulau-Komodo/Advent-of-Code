@@ -23,8 +23,9 @@ const D: u32 = 0x10325476;
 pub fn md5(data: &[u8]) -> u128 {
 	let original_length = data.len() as u64 * 8; // % (2.pow(64));
 	let mut data = data.to_vec();
+	let needed_padding = (64 - (data.len() + 8 + 1) % 64) % 64;
+	// let needed_padding = (64 - 8 - data.len() as isize - 1).rem_euclid(64) as usize;
 	data.push(0x80);
-	let needed_padding = 64 - (data.len() + 8) % 64;
 	data.reserve_exact(needed_padding + 8);
 	data.resize(data.len() + needed_padding, 0);
 	data.extend_from_slice(&original_length.to_le_bytes());
@@ -73,23 +74,28 @@ pub fn md5(data: &[u8]) -> u128 {
 mod tests {
 	use super::*;
 
-	fn test_hash(input: &str, expected: u128) {
-		let hash = md5(input.as_bytes());
-		println!("{:0128b}", hash);
-		println!("{:0128b}", expected);
-		println!("{:032x}", hash);
-		println!("{:032x}", expected);
+	fn test_hash_str(input: &str, expected: u128) {
+		test_hash(input.as_bytes(), expected);
+	}
+	fn test_hash(input: &[u8], expected: u128) {
+		let hash = md5(input);
+		if hash != expected {
+			println!("{:0128b}", hash);
+			println!("{:0128b}", expected);
+			println!("{:032x}", hash);
+			println!("{:032x}", expected);
+		}
 		assert_eq!(hash, expected);
 	}
 
 	#[test]
 	fn empty_input() {
-		test_hash("", 0xd41d8cd98f00b204e9800998ecf8427e);
+		test_hash_str("", 0xd41d8cd98f00b204e9800998ecf8427e);
 	}
 
 	#[test]
 	fn quick_brown_dog() {
-		test_hash(
+		test_hash_str(
 			"The quick brown fox jumps over the lazy dog",
 			0x9e107d9d372bb6826bd81d3542a419d6,
 		);
@@ -97,7 +103,7 @@ mod tests {
 
 	#[test]
 	fn long() {
-		test_hash(
+		test_hash_str(
 			"This is a longer message intended to test whether the hashing still works if the data spreads across multiple chunks.",
 			0x1151cc2370bb985a7827614546c1047c,
 		);
@@ -105,10 +111,17 @@ mod tests {
 
 	#[test]
 	fn extra_long() {
-		test_hash(
+		test_hash_str(
 			"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi mattis felis sem, ac tincidunt lectus vulputate eget. Nam viverra egestas erat vel accumsan. Nullam malesuada diam in interdum consectetur. Morbi mi mi, vulputate gravida est in, rhoncus elementum magna. In volutpat finibus dapibus. Sed ipsum ligula, condimentum at tempus id, porttitor quis urna. Sed sollicitudin eros a convallis molestie. Integer diam dolor, varius non neque ut, porttitor mattis est. Vestibulum a eros quis turpis blandit iaculis quis vitae neque. Maecenas suscipit ex ac mi venenatis, at sodales enim eleifend. Phasellus tristique dictum lacus nec facilisis. Suspendisse a auctor nibh, at bibendum lorem. Duis lobortis lobortis efficitur. Sed sagittis ex sit amet mi congue, at ornare ex accumsan. Maecenas eleifend elit semper, eleifend augue non, mollis neque. Morbi vitae interdum sem. Morbi maximus mi et condimentum porttitor. Pellentesque dictum nibh efficitur nibh dapibus posuere. Sed nec ultrices dolor. Nullam justo est, ultrices vitae mauris ultricies, vehicula condimentum nisi. Donec consectetur sit amet sapien ac rhoncus. In sed dictum nisi. Nulla faucibus id enim in lobortis. Mauris luctus sem nibh, sed venenatis diam faucibus ac. Duis rutrum lectus sed est egestas iaculis. Morbi lobortis, nisi eu semper dictum, est quam cursus tellus, vel consequat leo arcu id tellus. Ut egestas purus quis justo pharetra dignissim. Curabitur facilisis urna in ligula dictum rutrum. Maecenas non mauris neque. Suspendisse porta tellus eros, a facilisis lacus scelerisque ut. Aliquam eget libero nec elit pellentesque iaculis sed sit amet lectus. Sed eu orci semper, aliquet neque et, eleifend nibh. Sed volutpat sem rhoncus pharetra tempor. Aenean imperdiet est metus, a laoreet enim condimentum in. Praesent nisi felis, cursus id tempor quis, suscipit at augue. Pellentesque et dictum velit. Cras cursus vehicula dolor, vel euismod nibh tempus vitae. Nullam convallis nulla sed cursus cursus. In sollicitudin tortor lectus, vel feugiat magna sollicitudin in. Maecenas placerat consectetur mauris ac ultricies. Nulla luctus, sem at ultrices facilisis, justo tortor commodo urna, aliquam tincidunt neque leo fringilla massa. Suspendisse in aliquet augue, in vulputate urna. Maecenas dapibus varius sapien at fermentum. Suspendisse non metus ut ex rhoncus lacinia id ut ipsum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce porta posuere eros, sollicitudin sollicitudin diam eleifend gravida. Aliquam erat volutpat. Praesent ut magna egestas, fermentum sapien id, aliquam tellus. Curabitur dictum sem est, a rutrum est efficitur nec. Donec semper tristique diam, eget sodales tortor cursus vel. Suspendisse a tempor elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Morbi ullamcorper lorem a neque porttitor dapibus. Nam molestie lorem ut lacus pharetra, nec commodo leo pretium. Suspendisse hendrerit elementum iaculis. Praesent nec vehicula justo. Fusce iaculis id lorem sed faucibus. Nunc molestie leo eros, in dictum turpis elementum eu. Aliquam pellentesque ante dolor, non iaculis est sollicitudin eu. Nam interdum est lorem, id interdum enim suscipit sit amet. Fusce efficitur augue in mauris tempor, et iaculis leo ornare. Donec accumsan ultrices tristique. Aliquam in vehicula lorem. Vivamus ac pretium velit. Aliquam tempus, elit efficitur facilisis eleifend, eros ipsum ultrices mauris, vitae porta arcu dui dignissim ex. Aenean nisi magna, dapibus eget eros et, lobortis lacinia tortor. Etiam commodo mollis urna, vel facilisis tellus molestie quis. Donec eu tellus ut nisi consectetur consectetur. Nullam purus felis, rhoncus ac porta et, pellentesque in quam. Sed blandit justo quis arcu porta venenatis. Quisque eu orci tempus, bibendum metus vitae, suscipit risus. Fusce porta, elit eget congue convallis, erat eros tincidunt libero, nec feugiat elit est at augue. Maecenas accumsan, diam id pretium tincidunt, velit felis gravida nulla, in tincidunt dui risus vel tortor. Curabitur sollicitudin cursus elit nec congue. Proin blandit felis a lectus gravida, a accumsan mauris iaculis. Mauris quis luctus lectus. Vestibulum porta dui id risus feugiat, eu rutrum sapien consequat. Mauris urna justo, hendrerit eget lorem ut, malesuada commodo ligula. Aliquam nec mauris lectus.",
 			0x39fb988c2e843debacf9e34b70b284cc,
 		);
+	}
+
+	#[test]
+	fn near_chunk_size_boundary() {
+		test_hash(&[0; 54], 0x8910e6fc12f07a52b796eb55fbf3edda);
+		test_hash(&[0; 55], 0xc9ea3314b91c9fd4e38f9432064fd1f2);
+		test_hash(&[0; 56], 0xe3c4dd21a9171fd39d208efa09bf7883);
 	}
 
 	#[test]
