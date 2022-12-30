@@ -15,7 +15,7 @@ pub use math::{div_ceil, wrapping_add, wrapping_sub};
 pub use md5::md5;
 pub use parsing::{bytes_to_integer, split_number};
 pub use point::{FlatPoint, Offset, Point};
-pub use range_set::RangeSet;
+pub use range_set::{RangeSet, RangeInclusiveSet, RangeDoubleExclusive};
 pub use top::IteratorTop;
 pub use vectors::{Vec2, Vec3};
 
