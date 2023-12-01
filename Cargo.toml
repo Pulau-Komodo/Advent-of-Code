@@ -9,3 +9,6 @@ members = [
 	"year_2021",
 	"year_2022",
 ]
+
+[profile.release]
+debug = 1

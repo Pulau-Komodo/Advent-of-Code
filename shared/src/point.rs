@@ -5,7 +5,7 @@ use std::{
 	str::FromStr,
 };
 
-use crate::internal::one;
+use crate::{internal::one, Vec2};
 
 #[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct Point<T> {
@@ -187,6 +187,33 @@ impl FlatPoint {
 		let x = self.index % grid_width;
 		let y = self.index / grid_width;
 		Point {
+			x: x.into(),
+			y: y.into(),
+		}
+	}
+	/// Makes a `FlatPoint` from a `Vec2`, assuming the given `grid_width`.
+	///
+	/// `(0, 0)` will be index 0, and rows (`Vec2`s that share a `y`) are kept sequential.
+	pub fn from_vec2<T: Into<usize>>(vec: Vec2<T>, grid_width: usize) -> Self {
+		if cfg!(debug_assertions) {
+			let x: usize = vec.x.into();
+			if x >= grid_width {
+				panic!("x is {x} but grid width is {grid_width}");
+			}
+			let index = vec.y.into() * grid_width + x;
+			Self { index }
+		} else {
+			let index = vec.y.into() * grid_width + vec.x.into();
+			Self { index }
+		}
+	}
+	/// Makes a `FlatPoint` into a `Vec2`, assuming the given `grid_width`.
+	///
+	/// `(0, 0)` will be index 0, and rows (`Vec2`s that share a `y`) were kept sequential.
+	pub fn into_vec2<T: From<usize>>(self, grid_width: usize) -> Vec2<T> {
+		let x = self.index % grid_width;
+		let y = self.index / grid_width;
+		Vec2 {
 			x: x.into(),
 			y: y.into(),
 		}

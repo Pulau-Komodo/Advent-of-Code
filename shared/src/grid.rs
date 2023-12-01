@@ -3,7 +3,7 @@ use std::{
 	ops::{Index, IndexMut},
 };
 
-use crate::{FlatPoint, Point};
+use crate::{FlatPoint, Point, Vec2};
 
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
 pub struct Grid<T> {
@@ -43,6 +43,16 @@ impl<T> Grid<T> {
 	/// Panics or gives wrong results if the point is out of bounds.
 	pub fn get_point_mut<P: Into<usize>>(&mut self, point: Point<P>) -> &mut T {
 		self.get_flat_point_mut(FlatPoint::from_point(point, self.width))
+	}
+	/// # Panics
+	/// Panics or gives wrong results if the point is out of bounds.
+	pub fn get_vec2_ref<P: Into<usize>>(&self, point: Vec2<P>) -> &T {
+		self.get_flat_point_ref(FlatPoint::from_vec2(point, self.width))
+	}
+	/// # Panics
+	/// Panics or gives wrong results if the point is out of bounds.
+	pub fn get_vec2_mut<P: Into<usize>>(&mut self, point: Vec2<P>) -> &mut T {
+		self.get_flat_point_mut(FlatPoint::from_vec2(point, self.width))
 	}
 	pub fn width(&self) -> usize {
 		self.width
@@ -102,6 +112,11 @@ impl<T: Clone> Grid<T> {
 	pub fn get_point<P: Into<usize>>(&self, point: Point<P>) -> T {
 		self.get_flat_point(FlatPoint::from_point(point, self.width))
 	}
+	/// # Panics
+	/// Panics or gives wrong results if the point is out of bounds.
+	pub fn get_vec2<P: Into<usize>>(&self, vec: Vec2<P>) -> T {
+		self.get_flat_point(FlatPoint::from_vec2(vec, self.width))
+	}
 	pub fn print_with<F, R>(&self, conversion: F)
 	where
 		F: Fn(&T) -> R,
@@ -117,7 +132,10 @@ impl<T: Clone> Grid<T> {
 	}
 }
 
-impl<T, P: Into<usize>> Index<Point<P>> for Grid<T> {
+impl<T, P> Index<Point<P>> for Grid<T>
+where
+	P: Into<usize>,
+{
 	type Output = T;
 	fn index(&self, index: Point<P>) -> &Self::Output {
 		self.get_point_ref(index)
@@ -140,6 +158,25 @@ impl<T> Index<FlatPoint> for Grid<T> {
 impl<T> IndexMut<FlatPoint> for Grid<T> {
 	fn index_mut(&mut self, index: FlatPoint) -> &mut Self::Output {
 		self.get_flat_point_mut(index)
+	}
+}
+
+impl<T, P> Index<Vec2<P>> for Grid<T>
+where
+	P: Into<usize>,
+{
+	type Output = T;
+	fn index(&self, index: Vec2<P>) -> &Self::Output {
+		self.get_vec2_ref(index)
+	}
+}
+
+impl<T, P> IndexMut<Vec2<P>> for Grid<T>
+where
+	P: Into<usize>,
+{
+	fn index_mut(&mut self, index: Vec2<P>) -> &mut Self::Output {
+		self.get_vec2_mut(index)
 	}
 }
 

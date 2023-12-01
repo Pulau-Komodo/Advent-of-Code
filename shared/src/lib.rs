@@ -1,3 +1,4 @@
+mod bitmask;
 mod grid;
 mod internal;
 mod io;
@@ -9,13 +10,14 @@ mod range_set;
 mod top;
 mod vectors;
 
+pub use bitmask::{Bit, Bitmask};
 pub use grid::Grid;
 pub use io::{print_answers, print_labelled_answers, read_file, read_file_special};
 pub use math::{div_ceil, wrapping_add, wrapping_sub};
 pub use md5::md5;
 pub use parsing::{bytes_to_integer, split_number};
 pub use point::{FlatPoint, Offset, Point};
-pub use range_set::{RangeSet, RangeInclusiveSet, RangeDoubleExclusive};
+pub use range_set::{RangeDoubleExclusive, RangeInclusiveSet, RangeSet};
 pub use top::IteratorTop;
 pub use vectors::{Vec2, Vec3};
 
