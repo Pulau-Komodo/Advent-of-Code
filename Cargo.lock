@@ -47,3 +47,10 @@ version = "0.1.0"
 dependencies = [
  "shared",
 ]
+
+[[package]]
+name = "year_2023"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
