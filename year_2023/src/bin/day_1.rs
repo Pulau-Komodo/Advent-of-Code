@@ -30,35 +30,25 @@ struct Digit {
 	value: u32,
 	digit: String,
 	word: &'static str,
-	word_rev: String,
 }
 
 impl Digit {
 	fn new(value: u32, word: &'static str) -> Self {
 		let digit = format!("{value}");
-		let word_rev = word.chars().rev().collect();
-		Self {
-			value,
-			digit,
-			word,
-			word_rev,
-		}
+		Self { value, digit, word }
 	}
-	fn forward_patterns(&self) -> impl Iterator<Item = &str> {
+	fn patterns(&self) -> impl Iterator<Item = &str> {
 		[self.digit.as_str(), self.word].into_iter()
 	}
-	fn reverse_patterns(&self) -> impl Iterator<Item = &str> {
-		[self.digit.as_str(), self.word_rev.as_str()].into_iter()
-	}
 	fn find_first(&self, line: &str) -> Option<usize> {
-		self.forward_patterns()
+		self.patterns()
 			.filter_map(|pattern| line.find(pattern))
 			.min()
 	}
-	fn find_last(&self, line_rev: &str) -> Option<usize> {
-		self.reverse_patterns()
-			.filter_map(|pattern| line_rev.find(pattern))
-			.min()
+	fn find_last(&self, line: &str) -> Option<usize> {
+		self.patterns()
+			.filter_map(|pattern| line.rfind(pattern))
+			.max()
 	}
 }
 
@@ -86,12 +76,10 @@ fn get_answer_2(input: &str) -> u32 {
 				.min_by_key(|(pos, _)| *pos)
 				.unwrap();
 
-			let line_rev = line.chars().rev().collect::<String>();
-
 			let (_, last) = digits
 				.iter()
-				.flat_map(|digit| digit.find_last(&line_rev).map(|pos| (pos, digit.value)))
-				.min_by_key(|(pos, _)| *pos)
+				.flat_map(|digit| digit.find_last(line).map(|pos| (pos, digit.value)))
+				.max_by_key(|(pos, _)| *pos)
 				.unwrap();
 
 			first * 10 + last
