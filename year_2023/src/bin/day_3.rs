@@ -10,48 +10,43 @@ fn get_answer_1(input: &str) -> u32 {
 		Cell::Empty,
 	);
 	let mut sum = 0;
-	for y in 0..grid.height() {
-		let mut number = None::<u32>;
-		let mut is_part_number = false;
-		for x in 0..grid.width() {
-			let point = Point::new(x, y);
-			let cell = grid.get_point(point);
-			match cell {
-				Cell::Digit(digit) => {
-					if is_any_symbol(
-						&grid,
-						[point - Offset::new(0, 1), point + Offset::new(0, 1)],
-					) {
+	let mut number = None::<u32>;
+	let mut is_part_number = false;
+	for (point, &cell) in grid.iter_with_points() {
+		match cell {
+			Cell::Digit(digit) => {
+				if is_any_symbol(
+					&grid,
+					[point - Offset::new(0, 1), point + Offset::new(0, 1)],
+				) {
+					is_part_number = true;
+				}
+				if let Some(ref mut number) = number {
+					*number *= 10;
+					*number += digit as u32;
+				} else {
+					let previous = point - Offset::new(1, 0);
+					let neighbours = [
+						previous - Offset::new(0, 1),
+						previous,
+						previous + Offset::new(0, 1),
+					];
+					if is_any_symbol(&grid, neighbours) {
 						is_part_number = true;
 					}
-					if let Some(ref mut number) = number {
-						*number *= 10;
-						*number += digit as u32;
-					} else {
-						let previous = point - Offset::new(1, 0);
-						let neighbours = [
-							previous - Offset::new(0, 1),
-							previous,
-							previous + Offset::new(0, 1),
-						];
-						if is_any_symbol(&grid, neighbours) {
-							is_part_number = true;
-						}
-						number = Some(digit as u32);
-					}
+					number = Some(digit as u32);
 				}
-				_ => {
-					if let Some(number) = number.take() {
-						let neighbours =
-							[point - Offset::new(0, 1), point, point + Offset::new(0, 1)];
-						if is_any_symbol(&grid, neighbours) {
-							is_part_number = true;
-						}
-						if is_part_number {
-							sum += number;
-						}
-						is_part_number = false;
+			}
+			_ => {
+				if let Some(number) = number.take() {
+					let neighbours = [point - Offset::new(0, 1), point, point + Offset::new(0, 1)];
+					if is_any_symbol(&grid, neighbours) {
+						is_part_number = true;
 					}
+					if is_part_number {
+						sum += number;
+					}
+					is_part_number = false;
 				}
 			}
 		}

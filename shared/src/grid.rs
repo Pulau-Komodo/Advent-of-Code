@@ -58,7 +58,7 @@ impl<T> Grid<T> {
 		self.width
 	}
 	pub fn height(&self) -> usize {
-		self.size() / self.width()
+		self.size() / self.width
 	}
 	pub fn size(&self) -> usize {
 		self.cells.len()
@@ -68,6 +68,16 @@ impl<T> Grid<T> {
 	}
 	pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
 		self.cells.iter_mut()
+	}
+	pub fn iter_with_points<N>(&self) -> impl Iterator<Item = (Point<N>, &T)>
+	where
+		N: From<usize>,
+	{
+		self.cells.iter().enumerate().map(|(index, cell)| {
+			let x = (index % self.width).into();
+			let y = (index / self.width).into();
+			(Point { x, y }, cell)
+		})
 	}
 }
 
