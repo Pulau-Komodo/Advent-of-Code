@@ -15,10 +15,7 @@ fn get_answer_1(input: &str) -> u32 {
 	for (point, &cell) in grid.iter_with_points() {
 		match cell {
 			Cell::Digit(digit) => {
-				if is_symbol(
-					&grid,
-					[point - Offset::new(0, 1), point + Offset::new(0, 1)],
-				) {
+				if is_symbol(&grid, [point - Offset::Y, point + Offset::Y]) {
 					is_part_number = true;
 				}
 				if let Some(ref mut number) = number {
@@ -26,11 +23,7 @@ fn get_answer_1(input: &str) -> u32 {
 					*number += digit as u32;
 				} else {
 					let previous = point - Offset::new(1, 0);
-					let neighbours = [
-						previous - Offset::new(0, 1),
-						previous,
-						previous + Offset::new(0, 1),
-					];
+					let neighbours = [previous - Offset::Y, previous, previous + Offset::Y];
 					if is_symbol(&grid, neighbours) {
 						is_part_number = true;
 					}
@@ -39,7 +32,7 @@ fn get_answer_1(input: &str) -> u32 {
 			}
 			_ => {
 				if let Some(number) = number.take() {
-					let neighbours = [point - Offset::new(0, 1), point, point + Offset::new(0, 1)];
+					let neighbours = [point - Offset::Y, point, point + Offset::Y];
 					if is_symbol(&grid, neighbours) {
 						is_part_number = true;
 					}
@@ -70,10 +63,10 @@ fn get_answer_2(input: &str) -> u32 {
 				continue;
 			}
 			let mut neighbouring_numbers = Vec::with_capacity(2);
-			let up = point - Offset::new(0, 1);
-			let left = point - Offset::new(1, 0);
-			let right = point + Offset::new(1, 0);
-			let down = point + Offset::new(0, 1);
+			let up = point - Offset::Y;
+			let left = point - Offset::X;
+			let right = point + Offset::X;
+			let down = point + Offset::Y;
 			for digit_pos in get_independent_digits(&grid, up)
 				.into_iter()
 				.chain(
@@ -146,8 +139,8 @@ fn get_independent_digits(grid: &Grid<Cell>, mid_point: Point<usize>) -> DigitSe
 	if matches!(grid.get_point(mid_point), Cell::Digit(_)) {
 		return DigitSearchResult::One(mid_point);
 	}
-	let left = mid_point - Offset::new(1, 0);
-	let right = mid_point + Offset::new(1, 0);
+	let left = mid_point - Offset::X;
+	let right = mid_point + Offset::X;
 	match (grid.get_point(left), grid.get_point(right)) {
 		(Cell::Digit(_), Cell::Digit(_)) => DigitSearchResult::Two(left, right),
 		(Cell::Digit(_), _) => DigitSearchResult::One(left),

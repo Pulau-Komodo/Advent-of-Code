@@ -160,6 +160,11 @@ impl<T> Offset<T> {
 	}
 }
 
+impl Offset<usize> {
+	pub const X: Self = Self { x: 1, y: 0 };
+	pub const Y: Self = Self { x: 0, y: 1 };
+}
+
 impl<T> Offset<T>
 where
 	T: Add<Output = T> + Copy,
