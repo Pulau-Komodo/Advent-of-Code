@@ -15,7 +15,7 @@ fn get_answer_1(input: &str) -> u32 {
 	for (point, &cell) in grid.iter_with_points() {
 		match cell {
 			Cell::Digit(digit) => {
-				if is_any_symbol(
+				if is_symbol(
 					&grid,
 					[point - Offset::new(0, 1), point + Offset::new(0, 1)],
 				) {
@@ -31,7 +31,7 @@ fn get_answer_1(input: &str) -> u32 {
 						previous,
 						previous + Offset::new(0, 1),
 					];
-					if is_any_symbol(&grid, neighbours) {
+					if is_symbol(&grid, neighbours) {
 						is_part_number = true;
 					}
 					number = Some(digit as u32);
@@ -40,7 +40,7 @@ fn get_answer_1(input: &str) -> u32 {
 			_ => {
 				if let Some(number) = number.take() {
 					let neighbours = [point - Offset::new(0, 1), point, point + Offset::new(0, 1)];
-					if is_any_symbol(&grid, neighbours) {
+					if is_symbol(&grid, neighbours) {
 						is_part_number = true;
 					}
 					if is_part_number {
@@ -71,34 +71,24 @@ fn get_answer_2(input: &str) -> u32 {
 			}
 			let mut neighbouring_numbers = Vec::with_capacity(2);
 			let up = point - Offset::new(0, 1);
-			match get_independent_digits(&grid, up) {
-				DigitSearchResult::Two(left, right) => neighbouring_numbers.extend([left, right]),
-				DigitSearchResult::One(digit_pos) => neighbouring_numbers.push(digit_pos),
-				DigitSearchResult::None => (),
-			}
 			let left = point - Offset::new(1, 0);
 			let right = point + Offset::new(1, 0);
-			for neighbour in [left, right] {
-				if matches!(grid.get_point(neighbour), Cell::Digit(_)) {
-					if neighbouring_numbers.len() == 2 {
-						continue 'cell; // Not a gear.
-					}
-					neighbouring_numbers.push(neighbour);
-				}
-			}
 			let down = point + Offset::new(0, 1);
-			match get_independent_digits(&grid, down) {
-				DigitSearchResult::Two(left, right) => {
-					if neighbouring_numbers.is_empty() {
-						neighbouring_numbers.extend([left, right]);
-					}
+			for digit_pos in get_independent_digits(&grid, up)
+				.into_iter()
+				.chain(
+					[left, right]
+						.into_iter()
+						.filter(|point| matches!(grid.get_point(*point), Cell::Digit(_))),
+				)
+				.chain(
+					std::iter::once(())
+						.flat_map(|_| get_independent_digits(&grid, down).into_iter()),
+				) {
+				if neighbouring_numbers.len() >= 2 {
+					continue 'cell; // Not a gear.
 				}
-				DigitSearchResult::One(digit_pos) => {
-					if neighbouring_numbers.len() == 1 {
-						neighbouring_numbers.push(digit_pos)
-					}
-				}
-				DigitSearchResult::None => (),
+				neighbouring_numbers.push(digit_pos);
 			}
 			if neighbouring_numbers.len() != 2 {
 				continue 'cell; // Not a gear.
@@ -129,7 +119,7 @@ impl Cell {
 	}
 }
 
-fn is_any_symbol(grid: &Grid<Cell>, points: impl IntoIterator<Item = Point<usize>>) -> bool {
+fn is_symbol(grid: &Grid<Cell>, points: impl IntoIterator<Item = Point<usize>>) -> bool {
 	points
 		.into_iter()
 		.any(|point| matches!(grid.get_point(point), Cell::Symbol(_)))
@@ -139,6 +129,17 @@ enum DigitSearchResult {
 	Two(Point<usize>, Point<usize>),
 	One(Point<usize>),
 	None,
+}
+
+impl DigitSearchResult {
+	fn into_iter(self) -> impl Iterator<Item = Point<usize>> {
+		let list = match self {
+			Self::Two(left, right) => [Some(left), Some(right)],
+			Self::One(point) => [Some(point), None],
+			Self::None => [None, None],
+		};
+		list.into_iter().flatten()
+	}
 }
 
 fn get_independent_digits(grid: &Grid<Cell>, mid_point: Point<usize>) -> DigitSearchResult {
