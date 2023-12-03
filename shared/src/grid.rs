@@ -57,6 +57,9 @@ impl<T> Grid<T> {
 	pub fn width(&self) -> usize {
 		self.width
 	}
+	pub fn height(&self) -> usize {
+		self.size() / self.width()
+	}
 	pub fn size(&self) -> usize {
 		self.cells.len()
 	}

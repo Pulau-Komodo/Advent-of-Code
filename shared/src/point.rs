@@ -13,6 +13,12 @@ pub struct Point<T> {
 	pub y: T,
 }
 
+impl<T> Point<T> {
+	pub const fn new(x: T, y: T) -> Self {
+		Self { x, y }
+	}
+}
+
 impl<T> Point<T>
 where
 	T: Copy + Default + Add<Output = T> + Sub<Output = T> + Product,
@@ -146,6 +152,12 @@ where
 pub struct Offset<T> {
 	pub x: T,
 	pub y: T,
+}
+
+impl<T> Offset<T> {
+	pub const fn new(x: T, y: T) -> Self {
+		Self { x, y }
+	}
 }
 
 impl<T> Offset<T>
