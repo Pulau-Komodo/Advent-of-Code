@@ -31,22 +31,16 @@ fn get_answer_2(input: &str) -> i64 {
 		.split_ascii_whitespace()
 		.map(|n| n.parse().unwrap())
 		.collect();
-	let seed_ranges: Vec<Range<i64>> = seeds
+	let mut ranges: Vec<Range<i64>> = seeds
 		.chunks_exact(2)
 		.map(|range| range[0]..range[0] + range[1])
 		.collect();
-	let maps: Vec<_> = sections.map(RangeMap::from_str).collect();
-	seed_ranges
-		.into_iter()
-		.flatten()
-		.map(|mut value| {
-			for map in &maps {
-				value = map.convert(value);
-			}
-			value
-		})
-		.min()
-		.unwrap()
+	let mut new_ranges = Vec::new();
+	for map in sections.map(RangeMap::from_str) {
+		new_ranges.extend(ranges.drain(..).flat_map(|range| map.convert_range(range)));
+		std::mem::swap(&mut ranges, &mut new_ranges);
+	}
+	ranges.into_iter().map(|range| range.start).min().unwrap()
 }
 
 struct RangeMap(Vec<MapRange>);
@@ -59,8 +53,8 @@ impl RangeMap {
 	}
 	fn convert(&self, number: i64) -> i64 {
 		for range in &self.0 {
-			if number >= range.start {
-				if number < range.end {
+			if number >= range.range.start {
+				if number < range.range.end {
 					return number + range.offset;
 				}
 			} else {
@@ -69,12 +63,37 @@ impl RangeMap {
 		}
 		number
 	}
+	fn convert_range(&self, range: Range<i64>) -> Vec<Range<i64>> {
+		let mut last_point = 0;
+		let mut converted: Vec<_> = self
+			.0
+			.iter()
+			.flat_map(|map_range| {
+				let non_offset_overlap = overlap(&range, &(last_point..map_range.range.start));
+				last_point = map_range.range.end;
+				let mut offset_overlap = overlap(&range, &map_range.range);
+				offset_overlap.start += map_range.offset;
+				offset_overlap.end += map_range.offset;
+				[non_offset_overlap, offset_overlap]
+			})
+			.filter(|range| !range.is_empty())
+			.collect();
+
+		let end_overlap = overlap(&range, &(last_point..range.end));
+		if !end_overlap.is_empty() {
+			converted.push(end_overlap);
+		}
+		converted
+	}
+}
+
+fn overlap(a: &Range<i64>, b: &Range<i64>) -> Range<i64> {
+	a.start.max(b.start)..a.end.min(b.end)
 }
 
 #[derive(PartialEq, Eq)]
 struct MapRange {
-	start: i64,
-	end: i64,
+	range: Range<i64>,
 	offset: i64,
 }
 
@@ -85,8 +104,7 @@ impl MapRange {
 		let start_from = numbers.next().unwrap();
 		let range_size = numbers.next().unwrap();
 		Self {
-			start: start_from,
-			end: start_from + range_size,
+			range: start_from..start_from + range_size,
 			offset: start_to - start_from,
 		}
 	}
@@ -94,12 +112,12 @@ impl MapRange {
 
 impl PartialOrd for MapRange {
 	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		Some(self.start.cmp(&other.start))
+		Some(self.range.start.cmp(&other.range.start))
 	}
 }
 
 impl Ord for MapRange {
 	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		self.start.cmp(&other.start)
+		self.range.start.cmp(&other.range.start)
 	}
 }
