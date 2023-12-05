@@ -54,7 +54,7 @@ impl<'l> Card<'l> {
 	}
 	fn count_matches(&self) -> usize {
 		self.drawn_numbers()
-			.filter(|n| self.winning_numbers.iter().any(|winning| n == winning))
+			.filter(|n| self.winning_numbers.contains(n))
 			.count()
 	}
 	fn score(&self) -> u32 {
