@@ -47,23 +47,28 @@ impl Sequence {
 		next_in_sequence
 	}
 	fn extrapolate_prev(self) -> i32 {
-		let mut first_numbers = Vec::new();
+		let mut prev_in_sequence = 0;
+		let mut subtract_next = false;
 		let mut generation = self.sequence;
 		let mut next_generation = Vec::with_capacity(generation.len() - 1);
-		first_numbers.push(*generation.first().unwrap());
 		loop {
 			let mut generation_iter = generation.drain(..);
 			let mut prev_number = generation_iter.next().unwrap();
+			if subtract_next {
+				prev_in_sequence -= prev_number;
+			} else {
+				prev_in_sequence += prev_number;
+			}
+			subtract_next = !subtract_next;
 			for number in generation_iter {
 				next_generation.push(number - prev_number);
 				prev_number = number;
 			}
-			first_numbers.push(*next_generation.first().unwrap());
 			if next_generation.iter().all(|n| *n == 0) {
 				break;
 			}
 			std::mem::swap(&mut generation, &mut next_generation);
 		}
-		first_numbers.into_iter().rev().fold(0, |acc, n| n - acc)
+		prev_in_sequence
 	}
 }
