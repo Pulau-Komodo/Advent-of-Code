@@ -15,6 +15,12 @@ pub struct Vec3<T> {
 	pub z: T,
 }
 
+impl<T> Vec3<T> {
+	pub const fn new(x: T, y: T, z: T) -> Self {
+		Self { x, y, z }
+	}
+}
+
 impl<T> Vec3<T>
 where
 	T: Add<Output = T> + Sub<Output = T> + Product + Copy,
