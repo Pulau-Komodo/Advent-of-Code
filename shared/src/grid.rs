@@ -69,7 +69,7 @@ impl<T> Grid<T> {
 	pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut T> {
 		self.cells.iter_mut()
 	}
-	pub fn iter_with_points<N>(&self) -> impl Iterator<Item = (Point<N>, &T)>
+	pub fn iter_with_points<N>(&self) -> impl DoubleEndedIterator<Item = (Point<N>, &T)>
 	where
 		N: From<usize>,
 	{
