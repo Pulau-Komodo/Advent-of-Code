@@ -11,7 +11,8 @@ fn get_answer_1(input: &str) -> u32 {
 	};
 	bytes
 		.windows(2)
-		.filter_map(|pair| (pair[0] == pair[1]).then(|| (pair[0] - b'0') as u32))
+		.filter(|pair| pair[0] == pair[1])
+		.map(|pair| (pair[0] - b'0') as u32)
 		.sum::<u32>()
 		+ wrap
 }
