@@ -9,6 +9,7 @@ mod point;
 mod range_set;
 mod top;
 mod vectors;
+mod small_map;
 
 pub use bitmask::{Bit, Bitmask};
 pub use grid::Grid;
@@ -20,6 +21,7 @@ pub use point::{FlatPoint, Offset, Point};
 pub use range_set::{RangeDoubleExclusive, RangeInclusiveSet, RangeSet};
 pub use top::IteratorTop;
 pub use vectors::{Vec2, Vec3};
+pub use small_map::SmallMap;
 
 /// Prints a line with the passed value, and returns true. For debugging big boolean chains.
 pub fn println<T: std::fmt::Display>(output: T) -> bool {
