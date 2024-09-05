@@ -1,0 +1,12 @@
+set i 31
+set a 1
+mul p 8
+jgz p p
+mul a 2
+add i -1
+jgz i -2
+add a -1
+snd a
+jgz 1 10
+rcv a
+jgz 1 -1
