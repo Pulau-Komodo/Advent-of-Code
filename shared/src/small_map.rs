@@ -59,6 +59,10 @@ where
 			&mut self.values[len]
 		}
 	}
+	pub fn clear(&mut self) {
+		self.keys.clear();
+		self.values.clear();
+	}
 	pub fn keys(&self) -> impl ExactSizeIterator<Item = &K> + DoubleEndedIterator<Item = &K> {
 		self.keys.iter()
 	}
