@@ -1,8 +1,5 @@
 use std::{
-	fmt::Debug,
-	iter::Product,
-	ops::{Add, Sub},
-	str::FromStr,
+	fmt::Debug, iter::Product, ops::{Add, AddAssign, Sub}, str::FromStr
 };
 
 use crate::{internal::one, Vec2};
@@ -119,6 +116,13 @@ where
 			x: self.x + rhs.x,
 			y: self.y + rhs.y,
 		}
+	}
+}
+
+impl<T> AddAssign<Offset<T>> for Point<T> where T: AddAssign {
+	fn add_assign(&mut self, rhs: Offset<T>) {
+		self.x += rhs.x;
+		self.y += rhs.y;
 	}
 }
 
