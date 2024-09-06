@@ -16,7 +16,7 @@ fn get_answer_1(input: &str) -> u32 {
 			"nw" => Vec3::new(-1, 1, 0),
 			_ => panic!(),
 		};
-		pos = pos + offset;
+		pos += offset;
 	}
 	[pos.x, pos.y, pos.z]
 		.into_iter()
@@ -38,7 +38,7 @@ fn get_answer_2(input: &str) -> u32 {
 			"nw" => Vec3::new(-1, 1, 0),
 			_ => panic!(),
 		};
-		pos = pos + offset;
+		pos += offset;
 		for value in [pos.x, pos.y, pos.z].into_iter().map(i32::unsigned_abs) {
 			max = max.max(value);
 		}

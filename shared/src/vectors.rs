@@ -2,7 +2,7 @@ use std::{
 	any::type_name,
 	fmt::Debug,
 	iter::Product,
-	ops::{Add, Div, Mul, Rem, Sub},
+	ops::{Add, AddAssign, Div, Mul, Rem, Sub},
 	str::FromStr,
 };
 
@@ -18,6 +18,12 @@ pub struct Vec3<T> {
 impl<T> Vec3<T> {
 	pub const fn new(x: T, y: T, z: T) -> Self {
 		Self { x, y, z }
+	}
+	pub fn truncate(self) -> Vec2<T> {
+		Vec2 {
+			x: self.x,
+			y: self.y,
+		}
 	}
 }
 
@@ -54,6 +60,21 @@ where
 	}
 }
 
+impl Vec3<i32> {
+	pub fn abs(self) -> Vec3<i32> {
+		Vec3 { x: self.x.abs(), y: self.y.abs(), z: self.z.abs()}
+	}
+}
+
+impl<T> Vec3<T>
+where
+	T: Add<Output = T>,
+{
+	pub fn component_sum(self) -> T {
+		self.x + self.y + self.z
+	}
+}
+
 impl<T> Add for Vec3<T>
 where
 	T: Add<Output = T>,
@@ -64,6 +85,69 @@ where
 			x: self.x + rhs.x,
 			y: self.y + rhs.y,
 			z: self.z + rhs.z,
+		}
+	}
+}
+
+impl<T> AddAssign for Vec3<T>
+where
+	T: AddAssign,
+{
+	fn add_assign(&mut self, rhs: Self) {
+		self.x += rhs.x;
+		self.y += rhs.y;
+		self.z += rhs.z;
+	}
+}
+
+impl<T> Sub for Vec3<T>
+where
+	T: Sub<Output = T>,
+{
+	type Output = Self;
+	fn sub(self, rhs: Self) -> Self::Output {
+		Self {
+			x: self.x - rhs.x,
+			y: self.y - rhs.y,
+			z: self.z - rhs.z,
+		}
+	}
+}
+
+impl<T> Mul for Vec3<T>
+where
+	T: Mul<Output = T>,
+{
+	type Output = Self;
+	fn mul(self, rhs: Self) -> Self::Output {
+		Self {
+			x: self.x * rhs.x,
+			y: self.y * rhs.y,
+			z: self.z * rhs.z,
+		}
+	}
+}
+
+impl<T> Mul<T> for Vec3<T>
+where
+	T: Mul<Output = T> + Copy,
+{
+	type Output = Self;
+	fn mul(self, rhs: T) -> Self::Output {
+		Self {
+			x: self.x * rhs,
+			y: self.y * rhs,
+			z: self.z * rhs,
+		}
+	}
+}
+
+impl Vec3<i64> {
+	pub fn signum(self) -> Self {
+		Self {
+			x: self.x.signum(),
+			y: self.y.signum(),
+			z: self.z.signum(),
 		}
 	}
 }
