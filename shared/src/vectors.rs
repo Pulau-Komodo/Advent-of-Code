@@ -62,7 +62,11 @@ where
 
 impl Vec3<i32> {
 	pub fn abs(self) -> Vec3<i32> {
-		Vec3 { x: self.x.abs(), y: self.y.abs(), z: self.z.abs()}
+		Vec3 {
+			x: self.x.abs(),
+			y: self.y.abs(),
+			z: self.z.abs(),
+		}
 	}
 }
 
