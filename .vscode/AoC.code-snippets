@@ -41,5 +41,15 @@
 			"}",
 		],
 		"description": "Inserts a typical from_str constructor method",
+	},
+	"from_line method": {
+		"prefix": "from_line",
+		"body": [
+			"fn from_line(line: &str) -> Self {",
+			"\t$1",
+			"\ttodo!()",
+			"}",
+		],
+		"description": "Inserts a typical from_line constructor method",
 	}
 }
