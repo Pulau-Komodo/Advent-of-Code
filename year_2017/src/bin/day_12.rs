@@ -28,7 +28,7 @@ fn get_answer_2(input: &str) -> usize {
 		group_count += 1;
 		find_group(&map, &mut visited, unvisited)
 	}
-	
+
 	group_count
 }
 
