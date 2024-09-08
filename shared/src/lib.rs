@@ -1,4 +1,5 @@
 mod bitmask;
+mod cartesian_product;
 mod direction;
 mod grid;
 mod internal;
@@ -14,6 +15,7 @@ mod top;
 mod vectors;
 
 pub use bitmask::{Bit, Bitmask};
+pub use cartesian_product::{CartesianProduct, IntoCartesianProduct};
 pub use direction::Direction;
 pub use grid::Grid;
 pub use io::{print_answers, print_labelled_answers, read_file, read_file_special};
