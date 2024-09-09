@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct SmallMap<K, V>
 where
 	K: Eq,
@@ -58,6 +59,15 @@ where
 			self.values.push(v);
 			&mut self.values[len]
 		}
+	}
+	pub fn remove(&mut self, k: &K) -> Option<V> {
+		let index = self.keys.iter().position(|key| key == k)?;
+		let _key = self.keys.swap_remove(index);
+		let value = self.values.swap_remove(index);
+		Some(value)
+	}
+	pub fn contains_key(&self, k: &K) -> bool {
+		self.keys.iter().any(|key| k == key)
 	}
 	pub fn clear(&mut self) {
 		self.keys.clear();
