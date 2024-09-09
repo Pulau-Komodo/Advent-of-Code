@@ -35,7 +35,8 @@ fn get_answer_2(input: &str) -> u32 {
 		.map(|line| {
 			line.chars()
 				.filter(|&char| char == '"' || char == '\\')
-				.count() as u32 + 2
+				.count() as u32
+				+ 2
 		})
 		.sum()
 }

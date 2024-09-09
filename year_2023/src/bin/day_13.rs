@@ -20,8 +20,8 @@ fn get_answer_2(input: &str) -> usize {
 		.map(|pattern| {
 			pattern
 				.find_horizontal_reflection_with_smudge()
-				.unwrap_or(0) * 100
-				+ pattern.find_vertical_reflection_with_smudge().unwrap_or(0)
+				.unwrap_or(0)
+				* 100 + pattern.find_vertical_reflection_with_smudge().unwrap_or(0)
 		})
 		.sum()
 }

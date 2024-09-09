@@ -52,7 +52,8 @@ fn get_answers(input: &str) -> String {
 						Some(2 * edge)
 					}
 				})
-				.sum::<u32>() + edges.iter().product::<u32>()
+				.sum::<u32>()
+				+ edges.iter().product::<u32>()
 		})
 		.sum::<u32>();
 	format!("1: {}, 2: {}", wrapping_paper, ribbon)

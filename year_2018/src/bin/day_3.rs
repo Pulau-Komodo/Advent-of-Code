@@ -50,6 +50,7 @@ impl Claim {
 	}
 	fn check_overlap(&self, grid: &Grid<u16>) -> bool {
 		(self.position.x..self.position.x + self.size.x)
-		.cartesian_product(self.position.y..self.position.y + self.size.y).any(|(x, y)| grid.get_vec2(Vec2::new(x, y)) > 1)
+			.cartesian_product(self.position.y..self.position.y + self.size.y)
+			.any(|(x, y)| grid.get_vec2(Vec2::new(x, y)) > 1)
 	}
 }

@@ -106,7 +106,9 @@ impl Map {
 		Self { rows }
 	}
 	fn get_tile(&self, pos: Vec2<usize>) -> Tile {
-		let Some(row) = self.rows.get(pos.y) else { return Tile::Void; };
+		let Some(row) = self.rows.get(pos.y) else {
+			return Tile::Void;
+		};
 		*row.get(pos.x).unwrap_or(&Tile::Void)
 	}
 	fn find_start(&self) -> Vec2<usize> {

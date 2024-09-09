@@ -184,7 +184,8 @@ impl Layout {
 			(Hallway(hallway), Room(room)) => {
 				self.hallway[hallway]
 					.map(|letter| letter as usize == room)
-					.unwrap_or(false) && self.rooms[room].iter().all(|&item| item as usize == room)
+					.unwrap_or(false)
+					&& self.rooms[room].iter().all(|&item| item as usize == room)
 					&& range(ROOM_LOCATIONS[room], hallway)
 						.filter(|&index| index != hallway)
 						.all(|index| self.hallway[index].is_none())
@@ -196,9 +197,10 @@ impl Layout {
 					&& self.rooms[from_room]
 						.last()
 						.map(|&letter| letter as usize == to_room)
-						.unwrap_or(false) && self.rooms[to_room]
-					.iter()
-					.all(|&item| item as usize == to_room)
+						.unwrap_or(false)
+					&& self.rooms[to_room]
+						.iter()
+						.all(|&item| item as usize == to_room)
 					&& range(ROOM_LOCATIONS[from_room], ROOM_LOCATIONS[to_room])
 						.all(|index| self.hallway[index].is_none())
 			}
