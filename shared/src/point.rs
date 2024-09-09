@@ -109,6 +109,24 @@ where
 	}
 }
 
+impl<T> Point<T>
+where
+	T: Ord,
+{
+	pub fn component_min(self, other: Self) -> Self {
+		Self {
+			x: self.x.min(other.x),
+			y: self.y.min(other.y),
+		}
+	}
+	pub fn component_max(self, other: Self) -> Self {
+		Self {
+			x: self.x.max(other.x),
+			y: self.y.max(other.y),
+		}
+	}
+}
+
 impl<T> Add<Offset<T>> for Point<T>
 where
 	T: Add<Output = T>,
