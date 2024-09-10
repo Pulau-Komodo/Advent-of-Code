@@ -7,22 +7,21 @@ fn get_answer_1(input: &str) -> u32 {
 		.trim()
 		.split(' ')
 		.map(|num| num.parse::<u32>().unwrap());
-	let mut node_stack = Vec::<Node>::new();
+
+	let root = Node::try_from_iterator(&mut numbers).unwrap();
+	let mut node_stack = vec![root];
 	let mut metadata_sum = 0;
-	loop {
-		if let Some(node) = node_stack.last_mut() {
-			if node.child_count == 0 {
-				metadata_sum +=
-					take_exact(&mut numbers, node.metadatum_count as usize).sum::<u32>();
-				node_stack.pop().unwrap();
-				continue;
-			}
+	while !node_stack.is_empty() {
+		let node = node_stack.last_mut().unwrap();
+		if node.child_count == 0 {
+			metadata_sum += take_exact(&mut numbers, node.metadatum_count as usize).sum::<u32>();
+			node_stack.pop().unwrap();
+		} else {
 			node.child_count -= 1;
+
+			let new_node = Node::try_from_iterator(&mut numbers).unwrap();
+			node_stack.push(new_node);
 		}
-		let Some(new_node) = Node::try_from_iterator(&mut numbers) else {
-			break;
-		};
-		node_stack.push(new_node);
 	}
 	metadata_sum
 }
@@ -32,24 +31,24 @@ fn get_answer_2(input: &str) -> u32 {
 		.trim()
 		.split(' ')
 		.map(|num| num.parse::<u32>().unwrap());
-	let mut node_stack = Vec::<NodeV2>::new();
+
+	let root = NodeV2::try_from_iterator(&mut numbers).unwrap();
+	let mut node_stack = vec![root];
 	loop {
-		if let Some(node) = node_stack.last_mut() {
-			if node.child_count == 0 {
-				let finished_node = node_stack.pop().unwrap();
-				let value = finished_node.get_value(&mut numbers);
-				let Some(new_top_node) = node_stack.last_mut() else {
-					return value;
-				};
-				let total_child_count = new_top_node.child_values.len();
-				new_top_node.child_values
-					[total_child_count - new_top_node.child_count as usize - 1] += value;
-				continue;
-			}
+		let node = node_stack.last_mut().unwrap();
+		if node.child_count == 0 {
+			let finished_node = node_stack.pop().unwrap();
+			let value = finished_node.get_value(&mut numbers);
+			let Some(new_top_node) = node_stack.last_mut() else {
+				return value;
+			};
+			new_top_node.set_top_child_value(value);
+		} else {
 			node.child_count -= 1;
+
+			let new_node = NodeV2::try_from_iterator(&mut numbers).unwrap();
+			node_stack.push(new_node);
 		}
-		let new_node = NodeV2::try_from_iterator(&mut numbers).unwrap();
-		node_stack.push(new_node);
 	}
 }
 
@@ -100,6 +99,10 @@ impl NodeV2 {
 				})
 				.sum()
 		}
+	}
+	fn set_top_child_value(&mut self, value: u32) {
+		let total_child_count = self.child_values.len();
+		self.child_values[total_child_count - self.child_count as usize - 1] += value;
 	}
 }
 
