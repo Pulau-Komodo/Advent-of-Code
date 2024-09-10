@@ -8,7 +8,7 @@ fn get_answer_1(input: &str) -> u32 {
 		.split(' ')
 		.map(|num| num.parse::<u32>().unwrap());
 
-	let root = Node::try_from_iterator(&mut numbers).unwrap();
+	let root = Node::from_iterator(&mut numbers);
 	let mut node_stack = vec![root];
 	let mut metadata_sum = 0;
 	while !node_stack.is_empty() {
@@ -19,7 +19,7 @@ fn get_answer_1(input: &str) -> u32 {
 		} else {
 			node.child_count -= 1;
 
-			let new_node = Node::try_from_iterator(&mut numbers).unwrap();
+			let new_node = Node::from_iterator(&mut numbers);
 			node_stack.push(new_node);
 		}
 	}
@@ -32,7 +32,7 @@ fn get_answer_2(input: &str) -> u32 {
 		.split(' ')
 		.map(|num| num.parse::<u32>().unwrap());
 
-	let root = NodeV2::try_from_iterator(&mut numbers).unwrap();
+	let root = NodeV2::from_iterator(&mut numbers);
 	let mut node_stack = vec![root];
 	loop {
 		let node = node_stack.last_mut().unwrap();
@@ -46,7 +46,7 @@ fn get_answer_2(input: &str) -> u32 {
 		} else {
 			node.child_count -= 1;
 
-			let new_node = NodeV2::try_from_iterator(&mut numbers).unwrap();
+			let new_node = NodeV2::from_iterator(&mut numbers);
 			node_stack.push(new_node);
 		}
 	}
@@ -59,33 +59,37 @@ struct Node {
 }
 
 impl Node {
-	fn try_from_iterator(numbers: &mut impl Iterator<Item = u32>) -> Option<Self> {
-		let child_count = numbers.next()?;
+	fn from_iterator(numbers: &mut impl Iterator<Item = u32>) -> Self {
+		let child_count = numbers.next().unwrap();
 		let metadatum_count = numbers.next().unwrap();
-		Some(Self {
+		Self {
 			child_count,
 			metadatum_count,
-		})
+		}
 	}
 }
 
 #[derive(Debug)]
 struct NodeV2 {
+	/// The number of children left to process.
 	child_count: u32,
+	/// The number of metadatum numbers.
 	metadatum_count: u32,
+	/// The values of each of the children, initialised at 0 and filled out as they are discovered. Doubles as a way to track how many children there are total.
 	child_values: Vec<u32>,
 }
 
 impl NodeV2 {
-	fn try_from_iterator(numbers: &mut impl Iterator<Item = u32>) -> Option<Self> {
-		let child_count = numbers.next()?;
+	fn from_iterator(numbers: &mut impl Iterator<Item = u32>) -> Self {
+		let child_count = numbers.next().unwrap();
 		let metadatum_count = numbers.next().unwrap();
-		Some(Self {
+		Self {
 			child_count,
 			metadatum_count,
 			child_values: vec![0; child_count as usize],
-		})
+		}
 	}
+	/// Either sum up the metadata, or sum up the value of the children indicated by the metadata.
 	fn get_value(&self, numbers: &mut impl Iterator<Item = u32>) -> u32 {
 		if self.child_values.is_empty() {
 			take_exact(numbers, self.metadatum_count as usize).sum()
