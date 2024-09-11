@@ -1,5 +1,5 @@
 use std::{
-	fmt::Debug,
+	fmt::{Debug, Display},
 	iter::Product,
 	ops::{Add, AddAssign, Sub},
 	str::FromStr,
@@ -300,6 +300,12 @@ impl FlatPoint {
 			index + grid_width + 1,
 		]
 		.map(|index| Self { index })
+	}
+}
+
+impl<T> Display for Point<T> where T: Display {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "({},{})", self.x, self.y)
 	}
 }
 
