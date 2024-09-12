@@ -8,7 +8,7 @@ fn get_answer_1(input: &str) -> u64 {
 	let offset = process_input(input);
 	let target = offset + 10;
 
-	let recipes = develop_recipes(|length, _| length == target);
+	let recipes = develop_recipes(|recipes| recipes.len() == target);
 
 	recipes
 		.into_iter()
@@ -19,7 +19,7 @@ fn get_answer_1(input: &str) -> u64 {
 fn get_answer_2(input: &str) -> u64 {
 	let target: Vec<_> = input.trim().bytes().map(|byte| byte - b'0').collect();
 
-	let recipes = develop_recipes(|_, recipes| matches_last_10(recipes, &target));
+	let recipes = develop_recipes(|recipes| matches_last_10(recipes, &target));
 
 	recipes.len() as u64 - 10
 }
@@ -28,7 +28,7 @@ fn process_input(input: &str) -> usize {
 	input.trim().parse().unwrap()
 }
 
-fn develop_recipes(test: impl Fn(usize, &[u8]) -> bool) -> Vec<u8> {
+fn develop_recipes(test: impl Fn(&[u8]) -> bool) -> Vec<u8> {
 	let mut recipes = vec![3, 7];
 	let mut positions: [usize; 2] = array::from_fn(std::convert::identity);
 	loop {
@@ -37,12 +37,12 @@ fn develop_recipes(test: impl Fn(usize, &[u8]) -> bool) -> Vec<u8> {
 		let digit_two = sum % 10;
 		if digit_one > 0 {
 			recipes.push(digit_one);
-			if test(recipes.len(), &recipes) {
+			if test(&recipes) {
 				break;
 			}
 		}
 		recipes.push(digit_two);
-		if test(recipes.len(), &recipes) {
+		if test(&recipes) {
 			break;
 		}
 		for pos in &mut positions {
