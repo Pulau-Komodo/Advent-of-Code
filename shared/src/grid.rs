@@ -1,5 +1,5 @@
 use std::{
-	fmt::{Debug, Display},
+	fmt::{Debug, Display, Write},
 	ops::{Index, IndexMut},
 };
 
@@ -142,6 +142,21 @@ impl<T: Clone> Grid<T> {
 				print!("{}", conversion(cell));
 			}
 		}
+	}
+	pub fn write<W, F, R>(&self, mut w: W, conversion: F) -> Result<(), std::fmt::Error>
+	where
+		W: Write,
+		F: Fn(&T) -> R,
+		R: Display,
+	{
+		for (i, cell) in self.iter().enumerate() {
+			if (i + 1) % self.width == 0 {
+				w.write_fmt(format_args!("{}\n", conversion(cell)))?;
+			} else {
+				w.write_fmt(format_args!("{}", conversion(cell)))?;
+			}
+		}
+		Ok(())
 	}
 }
 
