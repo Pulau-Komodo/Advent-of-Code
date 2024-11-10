@@ -118,6 +118,20 @@ where
 	}
 }
 
+impl<K, V> FromIterator<(K, V)> for SmallMap<K, V>
+where
+	K: Eq,
+{
+	fn from_iter<T: IntoIterator<Item = (K, V)>>(iter: T) -> Self {
+		let iter = iter.into_iter();
+		let mut map = Self::with_capacity(iter.size_hint().0);
+		for (key, value) in iter {
+			map.insert(key, value);
+		}
+		map
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
