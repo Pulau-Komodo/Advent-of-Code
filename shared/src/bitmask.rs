@@ -70,7 +70,7 @@ where
 	bit_bitmask: T,
 }
 
-impl<'l, T> Deref for Bit<'l, T>
+impl<T> Deref for Bit<'_, T>
 where
 	T: Copy + BitAndAssign + BitOrAssign + Not<Output = T>,
 {
@@ -80,7 +80,7 @@ where
 	}
 }
 
-impl<'l, T> DerefMut for Bit<'l, T>
+impl<T> DerefMut for Bit<'_, T>
 where
 	T: Copy + BitAndAssign + BitOrAssign + Not<Output = T>,
 {
@@ -89,7 +89,7 @@ where
 	}
 }
 
-impl<'l, T> Drop for Bit<'l, T>
+impl<T> Drop for Bit<'_, T>
 where
 	T: Copy + BitAndAssign + BitOrAssign + Not<Output = T>,
 {
@@ -102,7 +102,7 @@ where
 	}
 }
 
-impl<'l, T> BitXor<bool> for Bit<'l, T>
+impl<T> BitXor<bool> for Bit<'_, T>
 where
 	T: Copy + BitAndAssign + BitOrAssign + Not<Output = T>,
 {
@@ -113,7 +113,7 @@ where
 	}
 }
 
-impl<'l, T> BitXorAssign<bool> for Bit<'l, T>
+impl<T> BitXorAssign<bool> for Bit<'_, T>
 where
 	T: Copy + BitAndAssign + BitOrAssign + Not<Output = T>,
 {
