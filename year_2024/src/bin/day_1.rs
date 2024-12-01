@@ -17,22 +17,12 @@ fn get_answer_2(input: &str) -> u32 {
 	list_left
 		.into_iter()
 		.map(|num_left| {
-			let Ok(index) = list_right.binary_search(&num_left) else {
-				return 0;
-			};
+			let index = list_right.partition_point(|num_right| *num_right < num_left);
 			let count = list_right
 				.iter()
-				.skip(index + 1)
+				.skip(index)
 				.take_while(|num_right| **num_right == num_left)
-				.chain(
-					list_right
-						.iter()
-						.rev()
-						.skip(list_right.len() - index)
-						.take_while(|num_right| **num_right == num_left),
-				)
-				.count() as u32
-				+ 1;
+				.count() as u32;
 			num_left * count
 		})
 		.sum()
