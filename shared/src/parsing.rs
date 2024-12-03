@@ -28,6 +28,16 @@ pub fn split_number<T>(string: &str) -> (T, &str)
 where
 	T: Default + From<u8> + AddAssign + MulAssign,
 {
+	try_split_number(string).expect("No numerical character found.")
+}
+
+/// Starting from the left, parses a string of ASCII digits into a number until it finds a non-numerical byte. Then returns the number and the remainder of the string slice.
+///
+/// Returns `None` if not a single digit was found.
+pub fn try_split_number<T>(string: &str) -> Option<(T, &str)>
+where
+	T: Default + From<u8> + AddAssign + MulAssign,
+{
 	let mut number = T::default();
 	for (index, byte) in string.bytes().enumerate() {
 		match byte {
@@ -35,16 +45,11 @@ where
 				number *= 10.into();
 				number += (byte - b'0').into();
 			}
-			_ => {
-				if index != 0 {
-					return (number, &string[index..]);
-				} else {
-					panic!("No numerical character found.")
-				}
-			}
+			_ if index != 0 => return Some((number, &string[index..])),
+			_ => return None,
 		}
 	}
-	(number, "")
+	Some((number, ""))
 }
 
 #[cfg(test)]
