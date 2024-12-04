@@ -17,7 +17,7 @@ mod vectors;
 
 pub use bitmask::{Bit, Bitmask};
 pub use cartesian_product::{CartesianProduct, IntoCartesianProduct};
-pub use direction::Direction;
+pub use direction::{Direction, Direction8};
 pub use grid::Grid;
 pub use io::{print_answers, print_labelled_answers, read_file, read_file_special};
 pub use math::{div_ceil, wrapping_add, wrapping_sub};

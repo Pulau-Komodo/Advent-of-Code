@@ -68,3 +68,69 @@ impl Direction {
 		}
 	}
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Direction8 {
+	Up,
+	UpRight,
+	Right,
+	DownRight,
+	Down,
+	DownLeft,
+	Left,
+	UpLeft,
+}
+
+impl Direction8 {
+	pub fn each() -> [Self; 8] {
+		[
+			Self::Up,
+			Self::UpRight,
+			Self::Right,
+			Self::DownRight,
+			Self::Down,
+			Self::DownLeft,
+			Self::Left,
+			Self::UpLeft,
+		]
+	}
+	pub fn into_offset<T>(self) -> Offset<T>
+	where
+		T: Default + Product + Neg<Output = T>,
+	{
+		match self {
+			Self::Up => Offset {
+				x: T::default(),
+				y: -one::<T>(),
+			},
+			Self::UpRight => Offset {
+				x: one::<T>(),
+				y: -one::<T>(),
+			},
+			Self::Right => Offset {
+				x: one::<T>(),
+				y: T::default(),
+			},
+			Self::DownRight => Offset {
+				x: one::<T>(),
+				y: one::<T>(),
+			},
+			Self::Down => Offset {
+				x: T::default(),
+				y: one::<T>(),
+			},
+			Self::DownLeft => Offset {
+				x: -one::<T>(),
+				y: one::<T>(),
+			},
+			Self::Left => Offset {
+				x: -one::<T>(),
+				y: T::default(),
+			},
+			Self::UpLeft => Offset {
+				x: -one::<T>(),
+				y: -one::<T>(),
+			},
+		}
+	}
+}
