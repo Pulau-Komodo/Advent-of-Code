@@ -5,7 +5,7 @@ fn main() {
 }
 
 fn get_answer_1(input: &str) -> u32 {
-	let grid = Grid::with_margin(input.lines().map(|lines| lines.chars()), ' ');
+	let grid = Grid::with_margin_from_chars(input, ' ', std::convert::identity);
 	let mut count = 0;
 	for x_point in grid
 		.iter_with_points::<usize>()
@@ -26,7 +26,7 @@ fn get_answer_1(input: &str) -> u32 {
 }
 
 fn get_answer_2(input: &str) -> u32 {
-	let grid = Grid::with_margin(input.lines().map(|lines| lines.chars()), ' ');
+	let grid = Grid::with_margin_from_chars(input, ' ', std::convert::identity);
 	let mut count = 0;
 	for x_point in grid
 		.iter_with_points::<usize>()
