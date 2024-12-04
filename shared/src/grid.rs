@@ -13,6 +13,22 @@ pub struct Grid<T> {
 
 impl<T> Grid<T> {
 	pub fn new(cells: impl IntoIterator<Item = impl IntoIterator<Item = T>>) -> Self {
+		Self::new_internal(cells, std::convert::identity)
+	}
+	/// A convenience constructor that assumes the input should be separated by lines and chars, because that is by far the most common case.
+	pub fn from_chars<F>(str: &str, map: F) -> Self
+	where
+		F: FnMut(char) -> T,
+	{
+		Self::new_internal(str.lines().map(|line| line.chars()), map)
+	}
+	fn new_internal<Input, F>(
+		cells: impl IntoIterator<Item = impl IntoIterator<Item = Input>>,
+		map: F,
+	) -> Self
+	where
+		F: FnMut(Input) -> T,
+	{
 		let mut height = 0;
 		let cells: Vec<_> = cells
 			.into_iter()
@@ -20,6 +36,7 @@ impl<T> Grid<T> {
 				height += 1;
 				inner
 			})
+			.map(map)
 			.collect();
 		let width = cells.len() / height;
 		Self { cells, width }
@@ -93,27 +110,38 @@ impl<T: Clone> Grid<T> {
 		cells: impl IntoIterator<Item = impl IntoIterator<Item = T>>,
 		filler: T,
 	) -> Self {
-		let mut height = 0;
-		let temp_cells: Vec<_> = cells
-			.into_iter()
-			.flat_map(|inner| {
-				height += 1;
+		let mut grid = Self::new(cells);
+		grid.add_margin(filler);
+		grid
+	}
+	pub fn with_margin_from_chars<F>(str: &str, filler: T, map: F) -> Self
+	where
+		F: FnMut(char) -> T,
+	{
+		let mut grid = Self::from_chars(str, map);
+		grid.add_margin(filler);
+		grid
+	}
+	pub fn add_margin(&mut self, filler: T) {
+		let mut cells = Vec::with_capacity(self.height() + 2 * self.width() * 2);
+
+		cells.extend((0..self.width() + 2).map(|_| filler.clone()));
+
+		let height = self.height();
+		let mut old_cells = std::mem::take(&mut self.cells).into_iter();
+		for _ in 0..height {
+			cells.extend(
 				[filler.clone()]
 					.into_iter()
-					.chain(inner)
-					.chain([filler.clone()])
-			})
-			.collect();
-		let width = temp_cells.len() / height;
-		let mut cells = Vec::with_capacity(temp_cells.len() + width * 2);
-		for _ in 0..width {
-			cells.push(filler.clone());
+					.chain((&mut old_cells).take(self.width()))
+					.chain([filler.clone()]),
+			);
 		}
-		cells.extend(temp_cells);
-		for _ in 0..width {
-			cells.push(filler.clone());
-		}
-		Self { cells, width }
+
+		cells.extend((0..self.width() + 2).map(|_| filler.clone()));
+
+		self.cells = cells;
+		self.width += 2;
 	}
 	/// # Panics
 	/// Panics if the point is out of bounds.
@@ -225,6 +253,26 @@ mod tests {
 	#[test]
 	fn grid_margin() {
 		let grid = Grid::with_margin([['A', 'B'], ['C', 'D']], ' ');
+		assert_eq!(
+			grid.cells,
+			Vec::from([
+				' ', ' ', ' ', ' ', ' ', 'A', 'B', ' ', ' ', 'C', 'D', ' ', ' ', ' ', ' ', ' '
+			])
+		);
+		assert_eq!(grid.width, 4);
+	}
+	#[test]
+	fn grid_from_chars() {
+		let grid = Grid::from_chars("123\n456\n789\nabc", std::convert::identity);
+		assert_eq!(
+			grid.cells,
+			Vec::from(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c'])
+		);
+		assert_eq!(grid.width, 3);
+	}
+	#[test]
+	fn grid_margin_from_chars() {
+		let grid = Grid::with_margin_from_chars("AB\nCD", ' ', std::convert::identity);
 		assert_eq!(
 			grid.cells,
 			Vec::from([
