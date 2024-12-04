@@ -123,7 +123,7 @@ impl<T: Clone> Grid<T> {
 		grid
 	}
 	pub fn add_margin(&mut self, filler: T) {
-		let mut cells = Vec::with_capacity(self.height() + 2 * self.width() * 2);
+		let mut cells = Vec::with_capacity((self.height() + 2) * (self.width() + 2));
 
 		cells.extend((0..self.width() + 2).map(|_| filler.clone()));
 
