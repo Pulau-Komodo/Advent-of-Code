@@ -2,7 +2,7 @@ use std::{iter::Product, ops::Neg};
 
 use crate::{internal::one, Offset};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
 	Up,
 	Right,
