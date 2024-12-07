@@ -1,7 +1,7 @@
 use std::{
 	fmt::{Debug, Display},
 	iter::Product,
-	ops::{Add, AddAssign, Sub},
+	ops::{Add, AddAssign, Mul, Sub},
 	str::FromStr,
 };
 
@@ -193,6 +193,19 @@ impl Offset<usize> {
 	pub const Y: Self = Self { x: 0, y: 1 };
 }
 
+impl<T> Mul<T> for Offset<T>
+where
+	T: Mul<Output = T> + Copy,
+{
+	type Output = Self;
+
+	fn mul(mut self, rhs: T) -> Self::Output {
+		self.x = self.x * rhs;
+		self.y = self.y * rhs;
+		self
+	}
+}
+
 impl<T> Offset<T>
 where
 	T: Add<Output = T> + Copy,
@@ -303,7 +316,10 @@ impl FlatPoint {
 	}
 }
 
-impl<T> Display for Point<T> where T: Display {
+impl<T> Display for Point<T>
+where
+	T: Display,
+{
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "({},{})", self.x, self.y)
 	}
