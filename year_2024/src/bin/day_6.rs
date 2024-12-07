@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use shared::{Direction, Offset, Point};
+use shared::{Direction, Offset, Point, SmallMap};
 
 fn main() {
 	shared::print_answers(6, &[get_answer_1, get_answer_2]);
@@ -99,19 +99,19 @@ impl Map {
 	fn test_loop(&self, extra_obstacle: Point<usize>) -> bool {
 		let mut guard_direction = Direction::Up;
 		let mut guard_position = self.starting_position;
-		let mut visited = HashSet::new();
+		let mut visited = SmallMap::new();
 		while let Some(distance) =
 			self.obstructions
 				.walkable(guard_position, guard_direction, Some(extra_obstacle))
 		{
-			if !visited.insert((guard_position, guard_direction)) {
-				return true;
-			}
 			guard_position = apply_offset(
 				guard_position,
 				guard_direction.into_offset() * distance as i32,
 			);
 			guard_direction.turn_right_mut();
+			if distance > 0 && visited.insert(guard_position, ()).is_some() {
+				return true;
+			}
 		}
 		false
 	}
