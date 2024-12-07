@@ -23,7 +23,7 @@ fn get_answer_2(input: &str) -> usize {
 }
 
 struct Map {
-	obstacles: HashSet<Point<usize>>,
+	obstructions: Obstructions,
 	largest_x: usize,
 	largest_y: usize,
 	starting_position: Point<usize>,
@@ -31,53 +31,68 @@ struct Map {
 
 impl Map {
 	fn from_input(input: &str) -> Self {
-		let mut guard_starting_position = Point::default();
+		let mut starting_position = Point::default();
 		let mut largest_x = 0;
-		let mut largest_y = 0;
-		let obstacles = input
-			.lines()
-			.enumerate()
-			.flat_map(|(y, line)| {
-				line.char_indices()
-					.map(move |(x, char)| (Point::new(x + 1, y + 1), char))
-			})
-			.filter_map(|(point, char)| {
-				largest_x = largest_x.max(point.x);
-				largest_y = largest_y.max(point.y);
-				match char {
-					'#' => Some(point),
-					'^' => {
-						guard_starting_position = point;
-						None
-					}
-					_ => None,
+		let mut largest_y = 1;
+		let mut highest_obstruction_x = 0;
+		let mut y_obstructions = Vec::new();
+		for (y, line) in input.lines().enumerate() {
+			largest_y += 1;
+			y_obstructions.push(Vec::new());
+			for (x, char) in line.char_indices() {
+				if char == '#' {
+					y_obstructions.last_mut().unwrap().push(x);
+					highest_obstruction_x = highest_obstruction_x.max(x);
+				} else if char == '^' {
+					starting_position = Point::new(x + 1, y + 1);
 				}
-			})
-			.collect::<HashSet<_>>();
+				largest_x = largest_x.max(x + 1);
+			}
+		}
+		let mut x_obstructions = (0..=highest_obstruction_x)
+			.map(|_| Vec::new())
+			.collect::<Vec<_>>();
+		for (y, row) in y_obstructions.iter().enumerate() {
+			for x in row {
+				x_obstructions[*x].push(y);
+			}
+		}
+		for column in &mut x_obstructions {
+			column.sort();
+		}
+		let obstructions = Obstructions {
+			x: x_obstructions,
+			y: y_obstructions,
+		};
 		Self {
-			obstacles,
+			obstructions,
 			largest_x,
 			largest_y,
-			starting_position: guard_starting_position,
+			starting_position,
 		}
 	}
 	fn find_visited(&self) -> HashSet<Point<usize>> {
 		let mut guard_direction = Direction::Up;
 		let mut guard_position = self.starting_position;
 		let mut visited = HashSet::new();
-		while (1..self.largest_x + 1).contains(&guard_position.x)
-			&& (1..self.largest_y + 1).contains(&guard_position.y)
-		{
-			visited.insert(guard_position);
-			loop {
-				let in_front = apply_offset(guard_position, guard_direction.into_offset());
-				if self.obstacles.contains(&in_front) {
-					guard_direction.turn_right_mut();
-				} else {
-					guard_position = in_front;
-					break;
+		'outer: loop {
+			let Some(distance) = self
+				.obstructions
+				.walkable(guard_position, guard_direction, None)
+			else {
+				while (1..self.largest_x + 1).contains(&guard_position.x)
+					&& (1..self.largest_y + 1).contains(&guard_position.y)
+				{
+					visited.insert(guard_position);
+					guard_position = apply_offset(guard_position, guard_direction.into_offset());
 				}
+				break 'outer;
+			};
+			for _ in 0..distance {
+				visited.insert(guard_position);
+				guard_position = apply_offset(guard_position, guard_direction.into_offset());
 			}
+			guard_direction.turn_right_mut();
 		}
 		visited
 	}
@@ -85,25 +100,70 @@ impl Map {
 		let mut guard_direction = Direction::Up;
 		let mut guard_position = self.starting_position;
 		let mut visited = HashSet::new();
-		while (1..self.largest_x + 1).contains(&guard_position.x)
-			&& (1..self.largest_y + 1).contains(&guard_position.y)
+		while let Some(distance) =
+			self.obstructions
+				.walkable(guard_position, guard_direction, Some(extra_obstacle))
 		{
-			let mut has_turned = false;
-			loop {
-				let in_front = apply_offset(guard_position, guard_direction.into_offset());
-				if self.obstacles.contains(&in_front) || in_front == extra_obstacle {
-					guard_direction.turn_right_mut();
-					has_turned = true;
-				} else {
-					guard_position = in_front;
-					break;
-				}
-			}
-			if has_turned && !visited.insert((guard_position, guard_direction)) {
+			if !visited.insert((guard_position, guard_direction)) {
 				return true;
 			}
+			guard_position = apply_offset(
+				guard_position,
+				guard_direction.into_offset() * distance as i32,
+			);
+			guard_direction.turn_right_mut();
 		}
 		false
+	}
+}
+
+struct Obstructions {
+	x: Vec<Vec<usize>>,
+	y: Vec<Vec<usize>>,
+}
+
+impl Obstructions {
+	fn walkable(
+		&self,
+		position: Point<usize>,
+		direction: Direction,
+		bonus_obstruction: Option<Point<usize>>,
+	) -> Option<usize> {
+		let position = apply_offset(position, Offset::new(-1, -1));
+		let (line, start, reverse) = match direction {
+			Direction::Up => (&self.x[position.x], position.y, true),
+			Direction::Right => (&self.y[position.y], position.x, false),
+			Direction::Down => (&self.x[position.x], position.y, false),
+			Direction::Left => (&self.y[position.y], position.x, true),
+		};
+		let distance = if reverse {
+			line.iter()
+				.rev()
+				.find(|obstruction| **obstruction < start)
+				.map(|obstruction| start - obstruction - 1)
+		} else {
+			line.iter()
+				.find(|obstruction| **obstruction > start)
+				.map(|obstruction| obstruction - start - 1)
+		};
+		let Some(obstruction) = bonus_obstruction else {
+			return distance;
+		};
+		let obstruction = apply_offset(obstruction, Offset::new(-1, -1));
+		let bonus_distance = match direction {
+			Direction::Up if position.x == obstruction.x => position.y.checked_sub(obstruction.y),
+			Direction::Right if position.y == obstruction.y => {
+				obstruction.x.checked_sub(position.x)
+			}
+			Direction::Down if position.x == obstruction.x => obstruction.y.checked_sub(position.y),
+			Direction::Left if position.y == obstruction.y => position.x.checked_sub(obstruction.x),
+			_ => None,
+		}
+		.map(|n| n - 1);
+		match (distance, bonus_distance) {
+			(Some(distance), Some(bonus)) => Some(distance.min(bonus)),
+			_ => distance.or(bonus_distance),
+		}
 	}
 }
 
