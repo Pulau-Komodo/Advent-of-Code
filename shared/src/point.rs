@@ -1,7 +1,7 @@
 use std::{
 	fmt::{Debug, Display},
 	iter::Product,
-	ops::{Add, AddAssign, Mul, Sub},
+	ops::{Add, AddAssign, Mul, Sub, SubAssign},
 	str::FromStr,
 };
 
@@ -160,6 +160,16 @@ where
 			x: self.x - rhs.x,
 			y: self.y - rhs.y,
 		}
+	}
+}
+
+impl<T> SubAssign<Offset<T>> for Point<T>
+where
+	T: SubAssign,
+{
+	fn sub_assign(&mut self, rhs: Offset<T>) {
+		self.x -= rhs.x;
+		self.y -= rhs.y;
 	}
 }
 
