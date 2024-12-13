@@ -1,4 +1,7 @@
-use std::ops::{Add, Div, Range, Rem, Sub};
+use std::{
+	iter::Product,
+	ops::{Add, Div, DivAssign, Range, Rem, Sub},
+};
 
 pub fn div_ceil<T>(num: T, rhs: T) -> T
 where
@@ -27,6 +30,17 @@ where
 	(num + range.end - range.start - range.start - rhs) % (range.end - range.start) + range.start
 }
 
+/// This will only make sense on integer types.
+pub fn count_digits<T: DivAssign + Clone + Default + Product + PartialEq>(mut n: T, base: T) -> u8 {
+	let zero = T::default();
+	let mut digits = 0;
+	while n != zero {
+		n /= base.clone();
+		digits += 1;
+	}
+	digits.max(1)
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -43,5 +57,16 @@ mod tests {
 		assert_eq!(wrapping_sub(6, 2, 5..10), 9);
 		assert_eq!(wrapping_sub(6, 3, 5..10), 8);
 		assert_eq!(wrapping_sub(150, 0, 100..200), 150);
+	}
+	#[test]
+	fn digit_counting() {
+		let digits = [0, 1, 9, 10, 12345, u128::MAX].map(|n| count_digits(n, 10));
+		assert_eq!(digits, [1, 1, 1, 2, 5, 39]);
+	}
+	#[test]
+	fn digit_counting_binary() {
+		let digits =
+			[0b0, 0b1, 0b111, 0b1000, 0b11000000111001, u128::MAX].map(|n| count_digits(n, 2));
+		assert_eq!(digits, [1, 1, 3, 4, 14, 128]);
 	}
 }
