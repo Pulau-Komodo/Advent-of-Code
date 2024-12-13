@@ -96,6 +96,24 @@ impl<T> Grid<T> {
 			(Point { x, y }, cell)
 		})
 	}
+	pub fn map<F, U>(self, f: F) -> Grid<U>
+	where
+		F: FnMut(T) -> U,
+	{
+		Grid {
+			cells: self.cells.into_iter().map(f).collect(),
+			width: self.width,
+		}
+	}
+	pub fn map_ref<F, U>(&self, f: F) -> Grid<U>
+	where
+		F: FnMut(&T) -> U,
+	{
+		Grid {
+			cells: self.cells.iter().map(f).collect(),
+			width: self.width,
+		}
+	}
 }
 
 impl<T: Clone> Grid<T> {
