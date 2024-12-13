@@ -5,7 +5,7 @@ fn main() {
 }
 
 fn get_answer_1(input: &str) -> u64 {
-		let stones = input
+	let stones = input
 		.trim()
 		.split(' ')
 		.map(|n| (n.parse().unwrap(), 1))
@@ -16,12 +16,12 @@ fn get_answer_1(input: &str) -> u64 {
 
 fn get_answer_2(input: &str) -> u64 {
 	let stones = input
-	.trim()
-	.split(' ')
-	.map(|n| (n.parse().unwrap(), 1))
-	.collect::<SmallMap<_, _>>();
-let stones = blink_n_times(stones, 75);
-stones.into_iter().map(|(_, count)| count).sum()
+		.trim()
+		.split(' ')
+		.map(|n| (n.parse().unwrap(), 1))
+		.collect::<SmallMap<_, _>>();
+	let stones = blink_n_times(stones, 75);
+	stones.into_iter().map(|(_, count)| count).sum()
 }
 
 fn step(n: u64) -> (u64, Option<u64>) {
