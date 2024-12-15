@@ -1,7 +1,7 @@
 use std::{
 	fmt::{Debug, Display},
 	iter::Product,
-	ops::{Add, AddAssign, Mul, Sub, SubAssign},
+	ops::{Add, AddAssign, Mul, Rem, Sub, SubAssign},
 	str::FromStr,
 };
 
@@ -212,6 +212,19 @@ where
 	fn mul(mut self, rhs: T) -> Self::Output {
 		self.x = self.x * rhs;
 		self.y = self.y * rhs;
+		self
+	}
+}
+
+impl<T> Rem<Self> for Offset<T>
+where
+	T: Rem<Output = T> + Copy,
+{
+	type Output = Self;
+
+	fn rem(mut self, rhs: Self) -> Self::Output {
+		self.x = self.x % rhs.x;
+		self.y = self.y % rhs.y;
 		self
 	}
 }
