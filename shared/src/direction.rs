@@ -11,6 +11,26 @@ pub enum Direction {
 }
 
 impl Direction {
+	pub fn from_byte(byte: u8) -> Self {
+		match byte {
+			b'^' => Direction::Up,
+			b'>' => Direction::Right,
+			b'v' => Direction::Down,
+			b'<' => Direction::Left,
+			_ => panic!(
+				"Unexpected byte for direction: {byte} ({}). Expected bytes {} ({}), {} ({}), {} ({}) or {} ({}).",
+				<u8 as Into<char>>::into(byte),
+				b'^',
+				'^',
+				b'>',
+				'>',
+				b'v',
+				'v',
+				b'<',
+				'<',
+			),
+		}
+	}
 	pub fn turn_right(self) -> Self {
 		match self {
 			Self::Up => Self::Right,
