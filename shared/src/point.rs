@@ -21,6 +21,18 @@ impl<T> Point<T> {
 
 impl<T> Point<T>
 where
+	T: Default,
+{
+	pub fn zero() -> Self {
+		Self {
+			x: T::default(),
+			y: T::default(),
+		}
+	}
+}
+
+impl<T> Point<T>
+where
 	T: Copy + Default + Add<Output = T> + Sub<Output = T> + Product,
 {
 	/// Yields the 4 orthogonally neighbouring `Point`s on a square grid, in order of up, left, right, bottom.
