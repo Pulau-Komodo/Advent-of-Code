@@ -55,11 +55,7 @@ fn get_answer_1(input: &str) -> u32 {
 		}
 		std::mem::swap(&mut frontier, &mut new_frontier);
 	}
-	[Direction::Up, Direction::Right]
-		.into_iter()
-		.filter_map(|direction| visited.get(&(destination, direction)).copied())
-		.min()
-		.unwrap()
+	lowest_cost
 }
 
 fn get_answer_2(input: &str) -> u32 {
