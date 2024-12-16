@@ -23,31 +23,37 @@ fn get_answer_1(input: &str) -> u32 {
 	loop {
 		let mut new_frontier = Vec::new();
 		for (position, direction, cost) in frontier.drain(..) {
-			for new_direction in [direction, direction.turn_left(), direction.turn_right()] {
-				let cost = cost + if new_direction == direction { 1 } else { 1001 };
-				let new_position = apply_offset(position, new_direction.into_offset());
-				if !wall_grid.get_point(new_position) {
-					let mut is_new = false;
-					visited
-						.entry((new_position, new_direction))
-						.and_modify(|old_cost| {
-							if cost < *old_cost {
-								is_new = true;
-								*old_cost = cost;
-							}
-						})
-						.or_insert_with(|| {
+			if position == destination {
+				lowest_cost = lowest_cost.min(cost);
+				continue;
+			}
+			let new_positions =
+				[direction, direction.turn_left(), direction.turn_right()].map(|new_direction| {
+					let new_position = apply_offset(position, new_direction.into_offset());
+					(!wall_grid.get_point(new_position)).then_some((new_position, new_direction))
+				});
+			let is_junction = new_positions.iter().filter(|x| x.is_some()).count() > 1;
+			if is_junction {
+				let mut is_new = false;
+				visited
+					.entry((position, direction))
+					.and_modify(|old_cost| {
+						if cost < *old_cost {
 							is_new = true;
-							cost
-						});
-					if is_new {
-						if new_position == destination {
-							lowest_cost = lowest_cost.min(cost);
-						} else {
-							new_frontier.push((new_position, new_direction, cost));
+							*old_cost = cost;
 						}
-					}
+					})
+					.or_insert_with(|| {
+						is_new = true;
+						cost
+					});
+				if !is_new {
+					continue;
 				}
+			}
+			for (new_position, new_direction) in new_positions.into_iter().flatten() {
+				let cost = cost + if new_direction == direction { 1 } else { 1001 };
+				new_frontier.push((new_position, new_direction, cost));
 			}
 		}
 		if new_frontier.is_empty() {
@@ -76,40 +82,44 @@ fn get_answer_2(input: &str) -> u32 {
 	loop {
 		let mut new_frontier = Vec::new();
 		for (position, direction, cost, history) in frontier.drain(..) {
-			for new_direction in [direction, direction.turn_left(), direction.turn_right()] {
-				let history = history.clone();
-				let cost = cost + if new_direction == direction { 1 } else { 1001 };
-				let new_position = apply_offset(position, new_direction.into_offset());
-				if !wall_grid.get_point(new_position) {
-					let mut is_new = false;
-					visited
-						.entry((new_position, new_direction))
-						.and_modify(|old_cost| {
-							if cost <= *old_cost {
-								is_new = true;
-								*old_cost = cost;
-							}
-						})
-						.or_insert_with(|| {
-							is_new = true;
-							cost
-						});
-					if is_new {
-						let mut new_history = history.clone();
-						new_history.push(new_position);
-						if new_position == destination {
-							if cost < lowest_cost {
-								ending_run_points.clear();
-							}
-							if cost <= lowest_cost {
-								ending_run_points.extend(new_history);
-								lowest_cost = cost;
-							}
-						} else {
-							new_frontier.push((new_position, new_direction, cost, new_history));
-						}
-					}
+			if position == destination {
+				if cost < lowest_cost {
+					lowest_cost = cost;
+					ending_run_points.clear();
 				}
+				if cost <= lowest_cost {
+					ending_run_points.extend(history);
+				}
+				continue;
+			}
+			let new_positions =
+				[direction, direction.turn_left(), direction.turn_right()].map(|new_direction| {
+					let new_position = apply_offset(position, new_direction.into_offset());
+					(!wall_grid.get_point(new_position)).then_some((new_position, new_direction))
+				});
+			let is_junction = new_positions.iter().filter(|x| x.is_some()).count() > 1;
+			if is_junction {
+				let mut is_new = false;
+				visited
+					.entry((position, direction))
+					.and_modify(|old_cost| {
+						if cost <= *old_cost {
+							is_new = true;
+							*old_cost = cost;
+						}
+					})
+					.or_insert_with(|| {
+						is_new = true;
+						cost
+					});
+				if !is_new {
+					continue;
+				}
+			}
+			for (new_position, new_direction) in new_positions.into_iter().flatten() {
+				let cost = cost + if new_direction == direction { 1 } else { 1001 };
+				let new_history = history.iter().copied().chain([new_position]).collect();
+				new_frontier.push((new_position, new_direction, cost, new_history));
 			}
 		}
 		if new_frontier.is_empty() {
