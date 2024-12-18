@@ -3,7 +3,7 @@ use std::{
 	ops::{Index, IndexMut},
 };
 
-use crate::{FlatPoint, Point, Vec2};
+use crate::{FlatPoint, Offset, Point, Vec2};
 
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
 pub struct Grid<T> {
@@ -114,6 +114,9 @@ impl<T> Grid<T> {
 			width: self.width,
 		}
 	}
+	pub fn contains_point(&self, point: Point<usize>) -> bool {
+		point.x < self.width() && point.y < self.height()
+	}
 }
 
 impl<T: Clone> Grid<T> {
@@ -203,6 +206,131 @@ impl<T: Clone> Grid<T> {
 			}
 		}
 		Ok(())
+	}
+}
+
+impl Grid<bool> {
+	pub fn print_small(&self) {
+		const CHARS: [char; 4] = [' ', '▀', '▄', '█'];
+		for line in (0..self.height()).step_by(2).map(|y| {
+			(0..self.width())
+				.map(move |x| Point::new(x, y))
+				.map(|point| {
+					[Offset::new(0, 0), Offset::Y]
+						.map(|offset| point + offset)
+						.map(|point| {
+							(self.contains_point(point))
+								.then(|| self.get_point(point))
+								.unwrap_or(true)
+						})
+				})
+		}) {
+			for window in line {
+				let index = window
+					.into_iter()
+					.rev()
+					.fold(0, |acc, e| acc << 1 | (e as usize));
+				print!("{}", CHARS[index ^ 3]);
+			}
+			println!();
+		}
+	}
+}
+
+impl Grid<bool> {
+	pub fn print_tiny(&self) {
+		#[rustfmt::skip]
+		const CHARS: [char; 16] = [
+			' ', '▘', '▝', '▀',
+			'▖', '▌', '▞', '▛',
+			'▗', '▚', '▐', '▜',
+			'▄', '▙', '▟', '█',
+		];
+		for line in (0..self.height()).step_by(2).map(|y| {
+			(0..self.width())
+				.step_by(2)
+				.map(move |x| Point::new(x, y))
+				.map(|point| {
+					[Offset::new(0, 0), Offset::X, Offset::Y, Offset::new(1, 1)]
+						.map(|offset| point + offset)
+						.map(|point| {
+							(self.contains_point(point))
+								.then(|| self.get_point(point))
+								.unwrap_or(true)
+						})
+				})
+		}) {
+			for window in line {
+				let index = window
+					.into_iter()
+					.rev()
+					.fold(0, |acc, e| acc << 1 | (e as usize));
+				print!("{}", CHARS[index ^ 15]);
+			}
+			println!();
+		}
+	}
+}
+
+impl Grid<bool> {
+	pub fn print_braille(&self) {
+		#[rustfmt::skip]
+		/// ```
+		/// 1 4
+		/// 2 5
+		/// 3 6
+		/// 7 8
+		/// ```
+		const CHARS: [char; 256] = [
+			'⠀','⠁','⠂','⠃','⠄','⠅','⠆','⠇','⠈','⠉','⠊','⠋','⠌','⠍','⠎','⠏',
+			'⠐','⠑','⠒','⠓','⠔','⠕','⠖','⠗','⠘','⠙','⠚','⠛','⠜','⠝','⠞','⠟',
+			'⠠','⠡','⠢','⠣','⠤','⠥','⠦','⠧','⠨','⠩','⠪','⠫','⠬','⠭','⠮','⠯',
+			'⠰','⠱','⠲','⠳','⠴','⠵','⠶','⠷','⠸','⠹','⠺','⠻','⠼','⠽','⠾','⠿',
+			'⡀','⡁','⡂','⡃','⡄','⡅','⡆','⡇','⡈','⡉','⡊','⡋','⡌','⡍','⡎','⡏',
+			'⡐','⡑','⡒','⡓','⡔','⡕','⡖','⡗','⡘','⡙','⡚','⡛','⡜','⡝','⡞','⡟',
+			'⡠','⡡','⡢','⡣','⡤','⡥','⡦','⡧','⡨','⡩','⡪','⡫','⡬','⡭','⡮','⡯',
+			'⡰','⡱','⡲','⡳','⡴','⡵','⡶','⡷','⡸','⡹','⡺','⡻','⡼','⡽','⡾','⡿',
+			'⢀','⢁','⢂','⢃','⢄','⢅','⢆','⢇','⢈','⢉','⢊','⢋','⢌','⢍','⢎','⢏',
+			'⢐','⢑','⢒','⢓','⢔','⢕','⢖','⢗','⢘','⢙','⢚','⢛','⢜','⢝','⢞','⢟',
+			'⢠','⢡','⢢','⢣','⢤','⢥','⢦','⢧','⢨','⢩','⢪','⢫','⢬','⢭','⢮','⢯',
+			'⢰','⢱','⢲','⢳','⢴','⢵','⢶','⢷','⢸','⢹','⢺','⢻','⢼','⢽','⢾','⢿',
+			'⣀','⣁','⣂','⣃','⣄','⣅','⣆','⣇','⣈','⣉','⣊','⣋','⣌','⣍','⣎','⣏',
+			'⣐','⣑','⣒','⣓','⣔','⣕','⣖','⣗','⣘','⣙','⣚','⣛','⣜','⣝','⣞','⣟',
+			'⣠','⣡','⣢','⣣','⣤','⣥','⣦','⣧','⣨','⣩','⣪','⣫','⣬','⣭','⣮','⣯',
+			'⣰','⣱','⣲','⣳','⣴','⣵','⣶','⣷','⣸','⣹','⣺','⣻','⣼','⣽','⣾','⣿',
+		];
+		for line in (0..self.height()).step_by(4).map(|y| {
+			(0..self.width())
+				.step_by(2)
+				.map(move |x| Point::new(x, y))
+				.map(|point| {
+					[
+						Offset::new(0, 0),
+						Offset::new(0, 1),
+						Offset::new(0, 2),
+						Offset::new(1, 0),
+						Offset::new(1, 1),
+						Offset::new(1, 2),
+						Offset::new(0, 3),
+						Offset::new(1, 3),
+					]
+					.map(|offset| point + offset)
+					.map(|point| {
+						(self.contains_point(point))
+							.then(|| self.get_point(point))
+							.unwrap_or(true)
+					})
+				})
+		}) {
+			for window in line {
+				let index = window
+					.into_iter()
+					.rev()
+					.fold(0, |acc, e| acc << 1 | (e as usize));
+				print!("{}", CHARS[index ^ 255]);
+			}
+			println!();
+		}
 	}
 }
 
