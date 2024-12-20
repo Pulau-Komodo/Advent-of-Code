@@ -16,11 +16,11 @@ impl<T> Grid<T> {
 		Self::new_internal(cells, std::convert::identity)
 	}
 	/// A convenience constructor that assumes the input should be separated by lines and chars, because that is by far the most common case.
-	pub fn from_chars<F>(str: &str, map: F) -> Self
+	pub fn from_str<F>(str: &str, map: F) -> Self
 	where
-		F: FnMut(char) -> T,
+		F: FnMut(u8) -> T,
 	{
-		Self::new_internal(str.lines().map(|line| line.chars()), map)
+		Self::new_internal(str.lines().map(|line| line.bytes()), map)
 	}
 	fn new_internal<Input, F>(
 		cells: impl IntoIterator<Item = impl IntoIterator<Item = Input>>,
@@ -88,11 +88,12 @@ impl<T> Grid<T> {
 	}
 	pub fn iter_with_points<N>(&self) -> impl DoubleEndedIterator<Item = (Point<N>, &T)>
 	where
-		N: From<usize>,
+		N: TryFrom<usize>,
+		<N as TryFrom<usize>>::Error: Debug,
 	{
 		self.cells.iter().enumerate().map(|(index, cell)| {
-			let x = (index % self.width).into();
-			let y = (index / self.width).into();
+			let x = (index % self.width).try_into().unwrap();
+			let y = (index / self.width).try_into().unwrap();
 			(Point { x, y }, cell)
 		})
 	}
@@ -135,11 +136,11 @@ impl<T: Clone> Grid<T> {
 		grid.add_margin(filler);
 		grid
 	}
-	pub fn with_margin_from_chars<F>(str: &str, filler: T, map: F) -> Self
+	pub fn with_margin_from_str<F>(str: &str, filler: T, map: F) -> Self
 	where
-		F: FnMut(char) -> T,
+		F: FnMut(u8) -> T,
 	{
-		let mut grid = Self::from_chars(str, map);
+		let mut grid = Self::from_str(str, map);
 		grid.add_margin(filler);
 		grid
 	}
@@ -409,7 +410,7 @@ mod tests {
 	}
 	#[test]
 	fn grid_from_chars() {
-		let grid = Grid::from_chars("123\n456\n789\nabc", std::convert::identity);
+		let grid = Grid::from_str("123\n456\n789\nabc", char::from);
 		assert_eq!(
 			grid.cells,
 			Vec::from(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c'])
@@ -418,7 +419,7 @@ mod tests {
 	}
 	#[test]
 	fn grid_margin_from_chars() {
-		let grid = Grid::with_margin_from_chars("AB\nCD", ' ', std::convert::identity);
+		let grid = Grid::with_margin_from_str("AB\nCD", ' ', char::from);
 		assert_eq!(
 			grid.cells,
 			Vec::from([
