@@ -1,9 +1,11 @@
+use std::ops::{Index, IndexMut};
+
 #[derive(Clone)]
 pub struct SmallMap<K, V>
 where
 	K: Eq,
 {
-	keys: Vec<K>,
+	pub(super) keys: Vec<K>,
 	values: Vec<V>,
 }
 
@@ -83,6 +85,26 @@ where
 		&self,
 	) -> impl ExactSizeIterator<Item = (&K, &V)> + DoubleEndedIterator<Item = (&K, &V)> {
 		self.keys().zip(self.values())
+	}
+}
+
+impl<K, V> Index<K> for SmallMap<K, V>
+where
+	K: Eq,
+{
+	type Output = V;
+
+	fn index(&self, index: K) -> &Self::Output {
+		self.get(&index).unwrap()
+	}
+}
+
+impl<K, V> IndexMut<K> for SmallMap<K, V>
+where
+	K: Eq,
+{
+	fn index_mut(&mut self, index: K) -> &mut Self::Output {
+		self.get_mut(&index).unwrap()
 	}
 }
 
