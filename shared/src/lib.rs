@@ -14,6 +14,7 @@ mod range_set;
 mod small_map;
 mod top;
 mod vectors;
+mod pathfinding;
 
 pub use bitmask::{Bit, Bitmask};
 pub use cartesian_product::{CartesianProduct, IntoCartesianProduct};
@@ -23,6 +24,7 @@ pub use io::{print_answers, print_labelled_answers, read_file, read_file_special
 pub use math::{count_digits, div_ceil, wrapping_add, wrapping_sub};
 pub use md5::md5;
 pub use pair_iterator::{IntoPairIterator, PairIterator};
+pub use pathfinding::BreadthFirstPathfinder;
 pub use parsing::{bytes_to_integer, split_number, try_split_number};
 pub use point::{FlatPoint, Offset, Point};
 pub use range::Range;
