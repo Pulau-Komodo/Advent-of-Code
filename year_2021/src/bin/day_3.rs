@@ -58,7 +58,7 @@ fn most_common_in_pos(report: &[u16], pos: u16) -> bool {
 	let half_len = if report.len() % 2 == 0 {
 		report.len() / 2
 	} else {
-		(report.len() + 1) / 2
+		report.len().div_ceil(2)
 	};
 	let mut zeroes = 0;
 	let mut ones = 0;

@@ -18,8 +18,11 @@ where
 {
 	pub fn new(frontier: Vec<P>, step_gen: StepGen, test: Test) -> Self {
 		let new_frontier = Vec::new();
-		Self { 
-			frontier, new_frontier, step_gen, test,
+		Self {
+			frontier,
+			new_frontier,
+			step_gen,
+			test,
 		}
 	}
 	pub fn progress(&mut self) -> bool {

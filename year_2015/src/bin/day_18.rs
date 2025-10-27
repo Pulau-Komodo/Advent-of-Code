@@ -50,9 +50,8 @@ impl Grid {
 		let on = str
 			.lines()
 			.enumerate()
-			.map(|(y, line)| line.char_indices().map(move |(x, char)| (x, y, char)))
-			.flatten()
-			.filter_map(|(x, y, char)| (char == '#').then(|| (x as u8, y as u8)))
+			.flat_map(|(y, line)| line.char_indices().map(move |(x, char)| (x, y, char)))
+			.filter_map(|(x, y, char)| (char == '#').then_some((x as u8, y as u8)))
 			.collect();
 		Self {
 			on,
@@ -63,13 +62,12 @@ impl Grid {
 		let to_check: std::collections::HashSet<(u8, u8)> = self
 			.on
 			.iter()
-			.map(|&coords| {
+			.flat_map(|&coords| {
 				ADJACENT
 					.iter()
 					.filter_map(move |&offset| get_nearby_coords(coords, offset))
 					.chain(std::iter::once(coords))
 			})
-			.flatten()
 			.collect();
 		self.on = to_check
 			.into_iter()

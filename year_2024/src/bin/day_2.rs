@@ -1,8 +1,5 @@
 fn main() {
-	shared::print_answers(
-		2,
-		&[get_answer_1, get_answer_2],
-	);
+	shared::print_answers(2, &[get_answer_1, get_answer_2]);
 }
 
 fn get_answer_1(input: &str) -> usize {

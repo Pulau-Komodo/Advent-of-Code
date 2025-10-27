@@ -219,11 +219,7 @@ impl Grid<bool> {
 				.map(|point| {
 					[Offset::new(0, 0), Offset::Y]
 						.map(|offset| point + offset)
-						.map(|point| {
-							(self.contains_point(point))
-								.then(|| self.get_point(point))
-								.unwrap_or(true)
-						})
+						.map(|point| !self.contains_point(point) || self.get_point(point))
 				})
 		}) {
 			for window in line {
@@ -254,11 +250,7 @@ impl Grid<bool> {
 				.map(|point| {
 					[Offset::new(0, 0), Offset::X, Offset::Y, Offset::new(1, 1)]
 						.map(|offset| point + offset)
-						.map(|point| {
-							(self.contains_point(point))
-								.then(|| self.get_point(point))
-								.unwrap_or(true)
-						})
+						.map(|point| !self.contains_point(point) || self.get_point(point))
 				})
 		}) {
 			for window in line {
@@ -316,11 +308,7 @@ impl Grid<bool> {
 						Offset::new(1, 3),
 					]
 					.map(|offset| point + offset)
-					.map(|point| {
-						(self.contains_point(point))
-							.then(|| self.get_point(point))
-							.unwrap_or(true)
-					})
+					.map(|point| !self.contains_point(point) || self.get_point(point))
 				})
 		}) {
 			for window in line {

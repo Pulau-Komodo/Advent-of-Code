@@ -38,7 +38,7 @@ fn get_answer_1(input: &str) -> u32 {
 			.into_iter()
 			.flatten()
 	};
-	
+
 	let test = |(position, direction, cost): &(Point<usize>, Direction, u32)| -> bool {
 		let mut is_new = false;
 		visited

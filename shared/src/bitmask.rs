@@ -51,7 +51,7 @@ where
 		+ BitOrAssign
 		+ Not<Output = T>,
 {
-	pub fn get_mut(&mut self, index: usize) -> Bit<T> {
+	pub fn get_mut(&mut self, index: usize) -> Bit<'_, T> {
 		let current = self.get(index);
 		Bit {
 			bitmask: self,

@@ -37,13 +37,7 @@ fn parse_input(input: &str) -> Vec<u32> {
 fn calculate_fuel_costs(positions: &[u32], target: u32) -> u32 {
 	positions
 		.iter()
-		.map(|&position| {
-			if position > target {
-				position - target
-			} else {
-				target - position
-			}
-		})
+		.map(|&position| position.abs_diff(target))
 		.sum()
 }
 
@@ -51,11 +45,7 @@ fn calculate_fuel_costs_v2(positions: &[u32], target: u32) -> u32 {
 	positions
 		.iter()
 		.map(|&position| {
-			let distance = if position > target {
-				position - target
-			} else {
-				target - position
-			};
+			let distance = position.abs_diff(target);
 			distance * (distance + 1) / 2
 		})
 		.sum()

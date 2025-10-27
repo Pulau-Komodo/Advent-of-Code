@@ -1,5 +1,3 @@
-use std::f32::MIN_POSITIVE;
-
 use shared::{Vec2, Vec3};
 
 fn main() {
@@ -141,8 +139,8 @@ impl HailstoneInt {
 			if offset.signum() != velocity_offset.signum() {
 				return None;
 			}
-			position = position + self.velocity;
-			other_position = other_position + other.velocity;
+			position += self.velocity;
+			other_position += other.velocity;
 			if position == other_position {
 				return Some(position);
 			}
@@ -161,12 +159,12 @@ impl HailstoneInt {
 					println!("a and b: {a}");
 				}
 			})
-			.filter_map(move |(a, b)| {
+			.map(move |(a, b)| {
 				let pos_a = self.position + self.velocity * a;
 				let pos_b = other.position + other.velocity * b;
 				let velocity = pos_b - pos_a;
 				let position = pos_a - velocity;
-				Some(HailstoneInt { position, velocity })
+				HailstoneInt { position, velocity }
 			})
 	}
 }
