@@ -1,7 +1,9 @@
 use std::{
-	iter::Sum,
+	iter::{Product, Sum},
 	ops::{Add, Range, RangeBounds, RangeInclusive, Sub},
 };
+
+use crate::internal::one;
 
 #[derive(Debug, Default)]
 pub struct RangeSet<T> {
@@ -37,6 +39,13 @@ where
 	}
 }
 
+impl<T> RangeSet<T> where T: PartialOrd {
+	/// Whether the value is in any of the ranges.
+	pub fn contains(&self, value: &T) -> bool {
+		self.ranges.iter().any(|range| range.contains(value))
+	}
+}
+
 impl<T> RangeSet<T>
 where
 	T: Ord + Copy,
@@ -60,6 +69,7 @@ where
 			self.ranges.push(range);
 		}
 	}
+	/// Merges ranges that have no gap between them.
 	pub fn consolidate(&mut self) {
 		for i in (1..self.ranges.len()).rev() {
 			let second = self.ranges[i].clone();
@@ -70,6 +80,7 @@ where
 			}
 		}
 	}
+	/// Returns an iterator over the gaps between the ranges.
 	pub fn gaps(&self) -> impl Iterator<Item = Range<T>> + '_ {
 		self.ranges.windows(2).filter_map(|ranges| {
 			if let [a, b] = ranges {
@@ -141,6 +152,13 @@ where
 	}
 }
 
+impl<T> RangeInclusiveSet<T> where T: PartialOrd {
+	/// Whether the value is in any of the ranges.
+	pub fn contains(&self, value: &T) -> bool {
+		self.ranges.iter().any(|range| range.contains(value))
+	}
+}
+
 impl<T> RangeInclusiveSet<T>
 where
 	T: Ord + Copy,
@@ -164,6 +182,9 @@ where
 			self.ranges.push(range);
 		}
 	}
+	/// Merges ranges that have no gap between them.
+	/// 
+	/// `0..=2, 3..=5` is considered to have a gap, even though for integers there effectively is not one.
 	pub fn consolidate(&mut self) {
 		for i in (1..self.ranges.len()).rev() {
 			let second = self.ranges[i].clone();
@@ -174,6 +195,9 @@ where
 			}
 		}
 	}
+	/// Returns an iterator over the gaps between the ranges.
+	/// 
+	/// `0..=2, 3..=5` is considered to have a gap, even though for integers there effectively is not one.
 	pub fn gaps(&self) -> impl Iterator<Item = RangeDoubleExclusive<T>> + '_ {
 		self.ranges.windows(2).filter_map(|ranges| {
 			if let [a, b] = ranges {
@@ -187,12 +211,13 @@ where
 
 impl<T> RangeInclusiveSet<T>
 where
-	T: Copy + Add<Output = T> + Sub<Output = T> + Sum,
+	T: Copy + Add<Output = T> + Sub<Output = T> + Sum + Product,
 {
 	pub fn len_sum(&self) -> T {
+		let one = one();
 		self.ranges
 			.iter()
-			.map(|range| *range.end() - *range.start())
+			.map(|range| *range.end() - *range.start() + one)
 			.sum()
 	}
 }
