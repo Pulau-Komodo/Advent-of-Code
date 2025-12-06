@@ -39,7 +39,10 @@ where
 	}
 }
 
-impl<T> RangeSet<T> where T: PartialOrd {
+impl<T> RangeSet<T>
+where
+	T: PartialOrd,
+{
 	/// Whether the value is in any of the ranges.
 	pub fn contains(&self, value: &T) -> bool {
 		self.ranges.iter().any(|range| range.contains(value))
@@ -152,7 +155,10 @@ where
 	}
 }
 
-impl<T> RangeInclusiveSet<T> where T: PartialOrd {
+impl<T> RangeInclusiveSet<T>
+where
+	T: PartialOrd,
+{
 	/// Whether the value is in any of the ranges.
 	pub fn contains(&self, value: &T) -> bool {
 		self.ranges.iter().any(|range| range.contains(value))
@@ -183,7 +189,7 @@ where
 		}
 	}
 	/// Merges ranges that have no gap between them.
-	/// 
+	///
 	/// `0..=2, 3..=5` is considered to have a gap, even though for integers there effectively is not one.
 	pub fn consolidate(&mut self) {
 		for i in (1..self.ranges.len()).rev() {
@@ -196,7 +202,7 @@ where
 		}
 	}
 	/// Returns an iterator over the gaps between the ranges.
-	/// 
+	///
 	/// `0..=2, 3..=5` is considered to have a gap, even though for integers there effectively is not one.
 	pub fn gaps(&self) -> impl Iterator<Item = RangeDoubleExclusive<T>> + '_ {
 		self.ranges.windows(2).filter_map(|ranges| {
