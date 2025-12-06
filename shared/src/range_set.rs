@@ -1,9 +1,7 @@
 use std::{
-	iter::{Product, Sum},
+	iter::{Sum},
 	ops::{Add, Range, RangeBounds, RangeInclusive, Sub},
 };
-
-use crate::internal::one;
 
 #[derive(Debug, Default)]
 pub struct RangeSet<T> {
@@ -73,6 +71,8 @@ where
 		}
 	}
 	/// Merges ranges that have no gap between them.
+	/// 
+	/// This is meant to be only for performance, with no impact on behaviour, though it does change `.count()`.
 	pub fn consolidate(&mut self) {
 		for i in (1..self.ranges.len()).rev() {
 			let second = self.ranges[i].clone();
@@ -189,6 +189,8 @@ where
 		}
 	}
 	/// Merges ranges that have no gap between them.
+	/// 
+	/// This is meant to be only for performance, with no impact on behaviour, though it does change `.count()`.
 	///
 	/// `0..=2, 3..=5` is considered to have a gap, even though for integers there effectively is not one.
 	pub fn consolidate(&mut self) {
@@ -217,13 +219,15 @@ where
 
 impl<T> RangeInclusiveSet<T>
 where
-	T: Copy + Add<Output = T> + Sub<Output = T> + Sum + Product,
+	T: Copy + Add<Output = T> + Sub<Output = T> + Sum,
 {
+	/// The sum of all range ends minus their starts.
+	/// 
+	/// This ends up failing to be inclusive of the ends. You could add `set.count()` but that will only be correct after consolidation.
 	pub fn len_sum(&self) -> T {
-		let one = one();
 		self.ranges
 			.iter()
-			.map(|range| *range.end() - *range.start() + one)
+			.map(|range| *range.end() - *range.start())
 			.sum()
 	}
 }

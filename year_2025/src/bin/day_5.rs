@@ -11,7 +11,7 @@ fn get_answer_1(input: &str) -> usize {
 
 fn get_answer_2(input: &str) -> usize {
 	let (ranges, _ids) = parse(input);
-	ranges.len_sum() as usize
+	ranges.len_sum() as usize + ranges.count()
 }
 
 fn parse(input: &str) -> (RangeInclusiveSet<u64>, Vec<u64>) {
