@@ -1,4 +1,4 @@
-use std::array;
+use std::{array, cmp::Reverse, collections::BinaryHeap};
 
 use shared::IteratorTop;
 
@@ -15,19 +15,17 @@ fn get_answer_1(input: &str) -> u32 {
 		})
 		.collect();
 
-	let mut connections: Vec<_> = (0..junctions.len() - 1)
-		.flat_map(|a| (a + 1..junctions.len()).map(move |b| (a, b)))
-		.map(|(a, b)| (a, b, distance_squared(junctions[a], junctions[b])))
-		.collect();
-	connections.sort_by(|a, b| a.2.cmp(&b.2));
-
-	let mut connections = Vec::from_iter(
-		connections
-			.into_iter()
-			.map(|(a, b, _)| (a, b))
-			.take(1000)
-			.rev(),
+	let mut connections = BinaryHeap::from_iter(
+		(0..junctions.len() - 1)
+			.flat_map(|a| (a + 1..junctions.len()).map(move |b| (a, b)))
+			.map(|(a, b)| (Reverse(distance_squared(junctions[a], junctions[b])), a, b)),
 	);
+
+	let mut connections = Vec::from_iter((0..1000).map(|_| {
+		let (_, a, b) = connections.pop().unwrap();
+		(a, b)
+	}));
+
 	let mut network = Vec::new();
 	while let Some((a, b)) = connections.pop() {
 		let mut circuit = Vec::from([a, b]);
@@ -71,45 +69,39 @@ fn get_answer_2(input: &str) -> u32 {
 		})
 		.collect();
 
-	let mut connections: Vec<_> = (0..junctions.len() - 1)
-		.flat_map(|a| (a + 1..junctions.len()).map(move |b| (a, b)))
-		.map(|(a, b)| (a, b, distance_squared(junctions[a], junctions[b])))
-		.collect();
-	connections.sort_by(|a, b| a.2.cmp(&b.2));
+	let mut connections = BinaryHeap::from_iter(
+		(0..junctions.len() - 1)
+			.flat_map(|a| (a + 1..junctions.len()).map(move |b| (a, b)))
+			.map(|(a, b)| (Reverse(distance_squared(junctions[a], junctions[b])), a, b)),
+	);
 
-	let connections: Vec<_> = connections.into_iter().map(|(a, b, _)| (a, b)).collect();
 	let mut network: Vec<Vec<usize>> = Vec::new();
-	for (a, b) in connections {
-		if let Some(circuit) = network
-			.iter()
-			.position(|circuit| circuit.contains(&a) || circuit.contains(&b))
+	while let Some((_, a, b)) = connections.pop() {
+		let mut touched_circuit = None;
+		match (
+			network.iter().position(|circuit| circuit.contains(&a)),
+			network.iter().position(|circuit| circuit.contains(&b)),
+		) {
+			(None, None) => network.push(Vec::from([a, b])),
+			(Some(circuit), None) => {
+				network[circuit].push(b);
+				touched_circuit = Some(circuit);
+			}
+			(None, Some(circuit)) => {
+				network[circuit].push(a);
+				touched_circuit = Some(circuit)
+			}
+			(Some(circuit_a), Some(circuit_b)) if circuit_a == circuit_b => (),
+			(Some(circuit_a), Some(circuit_b)) => {
+				let circuit = network.remove(circuit_a.max(circuit_b));
+				network[circuit_a.min(circuit_b)].extend(circuit);
+				touched_circuit = Some(circuit_a.min(circuit_b));
+			}
+		};
+		if let Some(circuit) = touched_circuit
+			&& network[circuit].len() == junctions.len()
 		{
-			for node in [a, b] {
-				if !network[circuit].contains(&node) {
-					network[circuit].push(node);
-				}
-			}
-			if let Some(other_circuit) =
-				network
-					.iter()
-					.enumerate()
-					.find_map(|(index, other_circuit)| {
-						(index != circuit
-							&& (other_circuit.contains(&a) || other_circuit.contains(&b)))
-						.then_some(index)
-					}) {
-				let other_circuit = network.remove(other_circuit);
-				for node in other_circuit {
-					if !network[circuit].contains(&node) {
-						network[circuit].push(node);
-					}
-				}
-			}
-			if network[circuit].len() == junctions.len() {
-				return (junctions[a][0] * junctions[b][0]) as u32;
-			}
-		} else {
-			network.push(Vec::from([a, b]));
+			return (junctions[a][0] * junctions[b][0]) as u32;
 		}
 	}
 	panic!();
